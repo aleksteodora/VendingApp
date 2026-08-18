@@ -1,9 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using VendingManagement.WebApp.Data;
 using VendingManagement.WebApp.Services;
-using VendingManagement.WebApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.WebHost.UseUrls("http://localhost:5245", "https://localhost:7142");
 
@@ -20,10 +29,13 @@ builder.Services.AddDbContext<VendingDbContext>(options =>
 builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();
 builder.Services.AddScoped<ISecurityModuleClient, SecurityModuleClient>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
+
+app.UseCors("AllowAngularApp");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
