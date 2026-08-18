@@ -1,0 +1,283 @@
+/* ---------- Base ---------- */
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 28px 64px;
+  font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+  color: #26221f;
+}
+
+.page-header {
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #26221f;
+}
+
+.eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7a2b3a;
+  margin-bottom: 6px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 600;
+  color: #1a1715;
+}
+
+/* ---------- Layout ---------- */
+
+.layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #ddd7d0;
+}
+
+.panel h2 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #55504a;
+  margin: 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e4dfd8;
+}
+
+/* ---------- Form panel ---------- */
+
+.form-panel {
+  border-top: 3px solid #7a2b3a;
+}
+
+.form-panel form {
+  padding: 20px;
+}
+
+.alert {
+  margin: 16px 16px 0;
+  padding: 10px 14px;
+  font-size: 13px;
+  border-left: 3px solid transparent;
+}
+
+.alert-error {
+  background: #fbeceb;
+  border-left-color: #a4342a;
+  color: #7a2620;
+}
+
+.alert-success {
+  background: #eef3ea;
+  border-left-color: #4a6b3a;
+  color: #3c5730;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #55504a;
+  margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border: 1px solid #cdc6bc;
+  background: #fbfaf8;
+  font-size: 14px;
+  font-family: inherit;
+  color: #26221f;
+}
+
+.field input::placeholder {
+  color: #a49b8f;
+}
+
+.field input:hover {
+  border-color: #b3aa9d;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: #7a2b3a;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(122, 43, 58, 0.12);
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 10px 16px;
+  background: #7a2b3a;
+  color: #fff;
+  border: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: #6a2531;
+}
+
+.btn-primary:active {
+  background: #5c2029;
+}
+
+.btn-ghost {
+  padding: 10px 16px;
+  background: transparent;
+  color: #55504a;
+  border: 1px solid #cdc6bc;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-ghost:hover {
+  border-color: #a49b8f;
+  color: #26221f;
+}
+
+/* ---------- List panel ---------- */
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e4dfd8;
+}
+
+.list-header h2 {
+  padding: 0;
+  border: none;
+}
+
+.count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7a2b3a;
+  background: #f6ebec;
+  padding: 2px 9px;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #857c6f;
+  background: #f7f5f1;
+  border-bottom: 1px solid #e4dfd8;
+}
+
+tbody tr {
+  border-bottom: 1px solid #ece7e0;
+}
+
+tbody tr:hover {
+  background: #faf8f5;
+}
+
+td {
+  padding: 12px 16px;
+  color: #34302c;
+}
+
+.id-cell {
+  color: #a49b8f;
+  font-variant-numeric: tabular-nums;
+  width: 32px;
+}
+
+.name-cell {
+  font-weight: 600;
+  color: #1a1715;
+}
+
+.meter-cell {
+  font-family: 'Consolas', 'SF Mono', monospace;
+  font-size: 12.5px;
+  color: #55504a;
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.btn-edit,
+.btn-delete {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.btn-edit {
+  color: #7a2b3a;
+}
+
+.btn-edit:hover {
+  text-decoration: underline;
+}
+
+.btn-delete {
+  color: #857c6f;
+}
+
+.btn-delete:hover {
+  color: #a4342a;
+  text-decoration: underline;
+}
+
+.empty-state {
+  padding: 48px 20px;
+  text-align: center;
+  color: #a49b8f;
+  font-size: 14px;
+}
