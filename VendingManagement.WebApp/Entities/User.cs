@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.Metrics;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace VendingManagement.WebApp.Entities
 {
+    [Index(nameof(ApiKey), IsUnique = true)]
     public class User
     {
         [Key]

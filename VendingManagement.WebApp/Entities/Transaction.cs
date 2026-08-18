@@ -22,12 +22,15 @@ namespace VendingManagement.WebApp.Entities
         public Meter Meter { get; set; }
 
         [Required]
+        [Column(TypeName = "decimal(18,5)")]
         public decimal Amount { get; set; }
 
         [Required]
+        [Column(TypeName = "decimal(18,5)")]
         public decimal ProcessingFeeAmount { get; set; }
 
         [Required]
+        [Column(TypeName = "decimal(18,5)")]
         public decimal EnergyAmount { get; set; }
 
         public string? Token { get; set; }
