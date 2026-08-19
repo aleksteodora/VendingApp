@@ -1,7 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using VendingManagement.Shared.DTOs;
-using VendingManagement.DAL.Context;
+﻿using VendingManagement.Shared.DTOs;
 using VendingManagement.DAL.Entities;
+using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.BLL.Clients;
 
@@ -9,25 +8,23 @@ namespace VendingManagement.BLL.Services.Implementations
 {
     public class TransactionService : ITransactionService
     {
-        private readonly VendingDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IProcessingFeeService _processingFeeService;
         private readonly ISecurityModuleClient _securityModuleClient;
 
         public TransactionService(
-            VendingDbContext context,
+            IUnitOfWork unitOfWork,
             IProcessingFeeService processingFeeService,
             ISecurityModuleClient securityModuleClient)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _processingFeeService = processingFeeService;
             _securityModuleClient = securityModuleClient;
         }
 
         public async Task<TokenResponseDataOut> ProcessTransactionAsync(TokenRequestDataIn dataIn)
         {
-            // nadji brojilo po serijskom broju zajedno sa korisnikom
-            var meter = await _context.Meters
-                .Include(m => m.User)
+            var meter = await _unitOfWork.Meters
                 .FirstOrDefaultAsync(m => m.MeterSerialNumber == dataIn.MeterSerialNumber);
 
             if (meter == null)
@@ -35,14 +32,18 @@ namespace VendingManagement.BLL.Services.Implementations
                 throw new KeyNotFoundException("Meter with given serial number was not found.");
             }
 
-            // uzmi trenutno aktivan processingfee
+            var user = await _unitOfWork.Users.GetByIdAsync(meter.UserId);
+
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User for given meter was not found.");
+            }
+
             var activeFee = await _processingFeeService.GetActiveFeeAsync();
 
-            // racunamo trosak obrade i preostalu energiju
             decimal processingFeeAmount = activeFee.FixedAmount + (dataIn.Amount * activeFee.PercentageRate);
             decimal energyAmount = dataIn.Amount - processingFeeAmount;
 
-            // transakcija pending pre poziva security modula
             var transaction = new Transaction
             {
                 MeterId = meter.Id,
@@ -53,10 +54,9 @@ namespace VendingManagement.BLL.Services.Implementations
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.Transactions.Add(transaction);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.Transactions.AddAsync(transaction);
+            await _unitOfWork.SaveChangesAsync();
 
-            // pozovi security module da generise token
             string token;
             try
             {
@@ -65,26 +65,25 @@ namespace VendingManagement.BLL.Services.Implementations
             catch (Exception)
             {
                 transaction.Status = TransactionStatus.Failed;
-                await _context.SaveChangesAsync();
+                _unitOfWork.Transactions.Update(transaction);
+                await _unitOfWork.SaveChangesAsync();
                 throw;
             }
 
-            // uspesno, azuriraj transakciju sa tokenom i statusom completed
             transaction.Token = token;
             transaction.Status = TransactionStatus.Completed;
-            await _context.SaveChangesAsync();
+            _unitOfWork.Transactions.Update(transaction);
+            await _unitOfWork.SaveChangesAsync();
 
-            // vrati racun korisniku
             return new TokenResponseDataOut
             {
-                FullName = meter.User.FullName,
-                Address = meter.User.Address,
-                PhoneNumber = meter.User.PhoneNumber,
+                FullName = user.FullName,
+                Address = user.Address,
+                PhoneNumber = user.PhoneNumber,
                 Token = token,
                 EnergyAmount = energyAmount,
                 ProcessingFeeAmount = processingFeeAmount
             };
-
         }
     }
 }

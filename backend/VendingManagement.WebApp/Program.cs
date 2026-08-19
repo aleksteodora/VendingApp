@@ -4,6 +4,9 @@ using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.BLL.Services.Implementations;
 using VendingManagement.BLL.Clients;
 
+using VendingManagement.DAL.UOW.Interfaces;
+using VendingManagement.DAL.UOW.Implementations;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
@@ -32,6 +35,7 @@ builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();
 builder.Services.AddScoped<ISecurityModuleClient, SecurityModuleClient>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddHttpClient();
 

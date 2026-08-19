@@ -1,24 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
-using VendingManagement.DAL.Context;
-using VendingManagement.DAL.Entities;
+﻿using VendingManagement.DAL.Entities;
+using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.BLL.Services.Interfaces;
 
 namespace VendingManagement.BLL.Services.Implementations
 {
     public class ProcessingFeeService : IProcessingFeeService
     {
-        private readonly VendingDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProcessingFeeService(VendingDbContext context)
+        public ProcessingFeeService(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<ProcessingFee> GetActiveFeeAsync()
         {
-            var activeFee = await _context.ProcessingFees
-                .Where(f => f.IsActive)
-                .FirstOrDefaultAsync();
+            var activeFee = await _unitOfWork.ProcessingFees
+                .FirstOrDefaultAsync(f => f.IsActive);
 
             if (activeFee == null)
             {
@@ -30,13 +28,13 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ProcessingFee> ChangeFeeAsync(decimal fixedAmount, decimal percentageRate)
         {
-            var currentActiveFees = await _context.ProcessingFees
-                .Where(f => f.IsActive)
-                .ToListAsync();
+            var currentActiveFees = await _unitOfWork.ProcessingFees
+                .FindAsync(f => f.IsActive);
 
             foreach (var fee in currentActiveFees)
             {
                 fee.IsActive = false;
+                _unitOfWork.ProcessingFees.Update(fee);
             }
 
             var newFee = new ProcessingFee
@@ -47,8 +45,8 @@ namespace VendingManagement.BLL.Services.Implementations
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.ProcessingFees.Add(newFee);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.ProcessingFees.AddAsync(newFee);
+            await _unitOfWork.SaveChangesAsync();
 
             return newFee;
         }

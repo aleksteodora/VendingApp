@@ -9,10 +9,6 @@
   <ItemGroup>
     <Folder Include="Entities\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Repositories\Implementations\" />
-    <Folder Include="Repositories\Interfaces\" />
-    <Folder Include="UOW\Implementations\" />
-    <Folder Include="UOW\Interfaces\" />
   </ItemGroup>
 
   <ItemGroup>
