@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using VendingManagement.WebApp.Data;
-using VendingManagement.WebApp.DTOs;
-using VendingManagement.WebApp.Entities;
+using VendingManagement.DAL.Context;
+using VendingManagement.DAL.Entities;
+using VendingManagement.Shared.DTOs;
+using VendingManagement.BLL.Services.Interfaces;
 
-namespace VendingManagement.WebApp.Services
+namespace VendingManagement.BLL.Services.Implementations
 {
     public class UserService : IUserService
     {

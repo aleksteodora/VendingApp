@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace VendingManagement.WebApp.DTOs
+namespace VendingManagement.Shared.DTOs
 {
     public class UserDataIn
     {

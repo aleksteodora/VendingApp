@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using VendingManagement.WebApp.Data;
-using VendingManagement.WebApp.Entities;
+using VendingManagement.DAL.Context;
+using VendingManagement.DAL.Entities;
+using VendingManagement.BLL.Services.Interfaces;
 
-namespace VendingManagement.WebApp.Services
+namespace VendingManagement.BLL.Services.Implementations
 {
     public class ProcessingFeeService : IProcessingFeeService
     {

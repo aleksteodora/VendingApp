@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VendingManagement.WebApp.Entities
+namespace VendingManagement.DAL.Entities
 {
     public enum TransactionStatus
     {

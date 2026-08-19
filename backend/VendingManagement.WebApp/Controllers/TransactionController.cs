@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VendingManagement.Shared.DTOs;
-using VendingManagement.WebApp.Services;
+using VendingManagement.BLL.Services.Interfaces;
 
 namespace VendingManagement.WebApp.Controllers
 {

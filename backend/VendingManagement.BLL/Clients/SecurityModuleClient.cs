@@ -1,9 +1,10 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using VendingManagement.Shared.Common;
 using VendingManagement.Shared.DTOs;
 
-namespace VendingManagement.WebApp.Services
+namespace VendingManagement.BLL.Clients
 {
     public class SecurityModuleClient : ISecurityModuleClient
     {

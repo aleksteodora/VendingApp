@@ -1,4 +1,4 @@
-﻿namespace VendingManagement.WebApp.DTOs
+﻿namespace VendingManagement.Shared.DTOs
 {
     public class TokenResponseDataOut
     {

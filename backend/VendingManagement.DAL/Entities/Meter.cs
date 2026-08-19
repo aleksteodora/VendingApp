@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace VendingManagement.WebApp.Entities
+namespace VendingManagement.DAL.Entities
 {
     [Index(nameof(MeterSerialNumber), IsUnique = true)]
     public class Meter

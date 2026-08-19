@@ -1,6 +1,6 @@
 ﻿using VendingManagement.Shared.DTOs;
 
-namespace VendingManagement.WebApp.Services
+namespace VendingManagement.BLL.Clients
 {
     public interface ISecurityModuleClient
     {

@@ -1,7 +1,6 @@
 ﻿using VendingManagement.Shared.DTOs;
-using VendingManagement.WebApp.DTOs;
 
-namespace VendingManagement.WebApp.Services
+namespace VendingManagement.BLL.Services.Interfaces
 {
     public interface ITransactionService
     {

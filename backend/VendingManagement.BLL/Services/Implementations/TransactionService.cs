@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VendingManagement.Shared.DTOs;
-using VendingManagement.WebApp.Data;
-using VendingManagement.WebApp.DTOs;
-using VendingManagement.WebApp.Entities;
+using VendingManagement.DAL.Context;
+using VendingManagement.DAL.Entities;
+using VendingManagement.BLL.Services.Interfaces;
+using VendingManagement.BLL.Clients;
 
-namespace VendingManagement.WebApp.Services
+namespace VendingManagement.BLL.Services.Implementations
 {
     public class TransactionService : ITransactionService
     {

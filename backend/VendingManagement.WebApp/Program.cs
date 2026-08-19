@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using VendingManagement.WebApp.Data;
-using VendingManagement.WebApp.Services;
+using VendingManagement.DAL.Context;
+using VendingManagement.BLL.Services.Interfaces;
+using VendingManagement.BLL.Services.Implementations;
+using VendingManagement.BLL.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,6 +1,6 @@
-﻿using VendingManagement.WebApp.Entities;
+﻿using VendingManagement.DAL.Entities;
 
-namespace VendingManagement.WebApp.Services
+namespace VendingManagement.BLL.Services.Interfaces
 {
     public interface IProcessingFeeService
     {

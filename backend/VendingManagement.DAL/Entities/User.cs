@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace VendingManagement.WebApp.Entities
+namespace VendingManagement.DAL.Entities
 {
     [Index(nameof(ApiKey), IsUnique = true)]
     public class User

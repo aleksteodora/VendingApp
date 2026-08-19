@@ -1,6 +1,6 @@
-﻿using VendingManagement.WebApp.DTOs;
+﻿using VendingManagement.Shared.DTOs;
 
-namespace VendingManagement.WebApp.Services
+namespace VendingManagement.BLL.Services.Interfaces
 {
     public interface IUserService
     {

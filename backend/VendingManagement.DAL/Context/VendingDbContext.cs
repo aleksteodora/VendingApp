@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using VendingManagement.WebApp.Entities;
+using VendingManagement.DAL.Entities;
 
-namespace VendingManagement.WebApp.Data
+namespace VendingManagement.DAL.Context
 {
     public class VendingDbContext : DbContext
     {
