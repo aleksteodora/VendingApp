@@ -55,7 +55,8 @@ namespace VendingManagement.BLL.Services.Implementations
             };
 
             await _unitOfWork.Transactions.AddAsync(transaction);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(); //namerno je ostavljeno da se sacuva u Pending stanju
+            //pre poziva security modula
 
             string token;
             try
@@ -73,7 +74,7 @@ namespace VendingManagement.BLL.Services.Implementations
             transaction.Token = token;
             transaction.Status = TransactionStatus.Completed;
             _unitOfWork.Transactions.Update(transaction);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(); //snimi completed
 
             return new TokenResponseDataOut
             {

@@ -47,16 +47,15 @@ namespace VendingManagement.BLL.Services.Implementations
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _unitOfWork.Users.AddAsync(user);
-            await _unitOfWork.SaveChangesAsync();
-
             var meter = new Meter
             {
                 MeterSerialNumber = dataIn.MeterSerialNumber,
-                UserId = user.Id
+                User = user
             };
 
+            await _unitOfWork.Users.AddAsync(user);
             await _unitOfWork.Meters.AddAsync(meter);
+
             await _unitOfWork.SaveChangesAsync();
 
             return MapToDataOut(user, meter);
