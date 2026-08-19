@@ -12,8 +12,8 @@ using VendingManagement.DAL.Context;
 namespace VendingManagement.DAL.Migrations
 {
     [DbContext(typeof(VendingDbContext))]
-    [Migration("20260819121235_InitialBaseline")]
-    partial class InitialBaseline
+    [Migration("20260819140404_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
