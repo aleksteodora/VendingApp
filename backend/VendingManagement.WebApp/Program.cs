@@ -1,6 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using VendingManagement.WebApp.Data;
-using VendingManagement.WebApp.Services;
+using VendingManagement.DAL.Context;
+using VendingManagement.BLL.Services.Interfaces;
+using VendingManagement.BLL.Services.Implementations;
+using VendingManagement.BLL.Clients;
+
+using VendingManagement.DAL.UOW.Interfaces;
+using VendingManagement.DAL.UOW.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +35,7 @@ builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();
 builder.Services.AddScoped<ISecurityModuleClient, SecurityModuleClient>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddHttpClient();
 
