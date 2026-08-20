@@ -18,7 +18,7 @@ namespace SecurityModule.BLL.Services.Implementations
                 result.Append(RandomNumberGenerator.GetInt32(0, 10));
             }
 
-            return new ResponsePackage<string> (result.ToString(), ResponseStatus.OK, "Token generated successfully.");
+            return new ResponsePackage<string> (result.ToString(), ResponseStatus.OK, "Token je uspešno generisan.");
         }
     }
 }

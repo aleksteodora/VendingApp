@@ -1,16 +1,16 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using VendingManagement.Shared.Common;
 
 namespace VendingManagement.Shared.DTOs
 {
     public class TokenRequestDataIn
     {
-        [Required(ErrorMessage = "Meter serial number is required.")]
+        [Required(ErrorMessage = "Serijski broj brojila je obavezan.")]
         [SerialNumber]
         public string MeterSerialNumber { get; set; }
-        [Required(ErrorMessage = "Amount is required.")]
-        [Range(-999999999999.99999, 999999999999.99999, ErrorMessage = "The Amount field must have no more than 17 digits in total, with 5 decimal places.")]
+
+        [Required(ErrorMessage = "Iznos je obavezan.")]
+        [Range(0.00001, 999999999999.99999, ErrorMessage = "Iynos mora biti poyitivna vrednost.")]
         public decimal Amount { get; set; }
     }
 }
