@@ -5,7 +5,7 @@ namespace VendingManagement.BLL.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<ResponsePackage<List<UserDataOut>>> GetAllAsync();
+        Task<ResponsePackage<PagedResult<UserDataOut>>> GetAllAsync(int pageNumber, int pageSize);
         Task<ResponsePackage<UserDataOut>> GetByIdAsync(int id);
         Task<ResponsePackage<UserDataOut>> CreateAsync(UserDataIn dataIn);
         Task<ResponsePackage<UserDataOut>> UpdateAsync(int id, UserDataIn dataIn);

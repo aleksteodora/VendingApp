@@ -16,17 +16,29 @@ namespace VendingManagement.BLL.Services.Implementations
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ResponsePackage<List<UserDataOut>>> GetAllAsync()
+        public async Task<ResponsePackage<PagedResult<UserDataOut>>> GetAllAsync(int pageNumber, int pageSize)
         {
-            var users = await _unitOfWork.UserRepository.GetAllAsync();
-            var meters = await _unitOfWork.MeterRepository.GetAllAsync();
+            if (pageNumber < 1)
+                pageNumber = 1;
+            if (pageSize < 1 || pageSize > 100)
+                pageSize = 20;
 
-            var result = users
-                .Select(u => MapToDataOut(u, meters.FirstOrDefault(m => m.UserId == u.Id)))
+              var (users, totalCount) = await _unitOfWork.UserRepository.GetPagedWithMeterAsync(pageNumber, pageSize);
+
+            var items = users
+                .Select(u => MapToDataOut(u, u.Meter))
                 .ToList();
 
-            return new ResponsePackage<List<UserDataOut>>(
-                result,
+            var pagedResult = new PagedResult<UserDataOut>
+            {
+                Items = items,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+
+            return new ResponsePackage<PagedResult<UserDataOut>>(
+                pagedResult,
                 ResponseStatus.OK,
                 "Users retrieved successfully.");
         }

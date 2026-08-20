@@ -42,7 +42,7 @@
     <section class="panel list-panel">
       <div class="list-header">
         <h2>All users</h2>
-        <span class="count">{{ users.length }}</span>
+        <span class="count">{{ totalCount }}</span>
       </div>
 
       <table *ngIf="users.length > 0">
@@ -70,6 +70,12 @@
           </tr>
         </tbody>
       </table>
+
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button class="btn-ghost" (click)="previousPage()" [disabled]="pageNumber === 1">Previous</button>
+        <span class="page-info">Page {{ pageNumber }} of {{ totalPages }}</span>
+        <button class="btn-ghost" (click)="nextPage()" [disabled]="pageNumber === totalPages">Next</button>
+      </div>
 
       <div class="empty-state" *ngIf="users.length === 0">
         No users added yet.

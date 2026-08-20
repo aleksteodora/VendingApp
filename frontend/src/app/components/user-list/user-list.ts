@@ -15,6 +15,11 @@ export class UserList implements OnInit {
   errorMessage = '';
   successMessage = '';
 
+  pageNumber = 1;
+  pageSize = 20;
+  totalCount = 0;
+  totalPages = 0;
+
   currentUser: UserModel = {
     fullName: '',
     address: '',
@@ -29,9 +34,11 @@ export class UserList implements OnInit {
   }
 
   loadUsers(): void {
-    this.userService.getAll().subscribe({
-      next: (data) => {
-        this.users = data;
+    this.userService.getAll(this.pageNumber, this.pageSize).subscribe({
+      next: (result) => {
+        this.users = result.items;
+        this.totalCount = result.totalCount;
+        this.totalPages = result.totalPages;
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -40,6 +47,22 @@ export class UserList implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) {
+      return;
+    }
+    this.pageNumber = page;
+    this.loadUsers();
+  }
+
+  nextPage(): void {
+    this.goToPage(this.pageNumber + 1);
+  }
+
+  previousPage(): void {
+    this.goToPage(this.pageNumber - 1);
   }
 
   onSubmit(): void {
@@ -65,6 +88,7 @@ export class UserList implements OnInit {
     } else {
       this.userService.create(this.currentUser).subscribe({
         next: () => {
+          this.pageNumber = 1;
           this.loadUsers();
           this.successMessage = 'User added successfully.';
           this.resetForm();

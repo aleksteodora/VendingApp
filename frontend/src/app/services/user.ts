@@ -10,6 +10,14 @@ export interface UserModel {
   meterSerialNumber: string;
 }
 
+export interface PagedResult<T> {
+  items: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
 interface ResponsePackage<T> {
   status: number;
   message: string;
@@ -24,8 +32,9 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  getAll(): Observable<UserModel[]> {
-    return this.http.get<ResponsePackage<UserModel[]>>(this.baseUrl)
+  getAll(pageNumber: number, pageSize: number): Observable<PagedResult<UserModel>> {
+    return this.http
+      .get<ResponsePackage<PagedResult<UserModel>>>(`${this.baseUrl}?pageNumber=${pageNumber}&pageSize=${pageSize}`)
       .pipe(map(response => response.data));
   }
 
