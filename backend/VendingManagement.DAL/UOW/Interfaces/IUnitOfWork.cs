@@ -5,10 +5,10 @@ namespace VendingManagement.DAL.UOW.Interfaces
 {
     public interface IUnitOfWork
     {
-        IRepository<User> Users { get; }
-        IRepository<Meter> Meters { get; }
-        IRepository<ProcessingFee> ProcessingFees { get; }
-        IRepository<Transaction> Transactions { get; }
+        IRepository<User> UserRepository { get; }
+        IRepository<Meter> MeterRepository { get; }
+        IRepository<ProcessingFee> ProcessingFeeRepository { get; }
+        IRepository<Transaction> TransactionRepository { get; }
 
         Task<int> SaveChangesAsync();
     }

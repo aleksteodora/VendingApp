@@ -10,20 +10,20 @@ namespace VendingManagement.DAL.UOW.Implementations
     {
         private readonly VendingDbContext _context;
 
-        private IRepository<User>? _users;
-        private IRepository<Meter>? _meters;
-        private IRepository<ProcessingFee>? _processingFees;
-        private IRepository<Transaction>? _transactions;
+        private IRepository<User>? _userRepository;
+        private IRepository<Meter>? _meterRepository;
+        private IRepository<ProcessingFee>? _processingFeeRepository;
+        private IRepository<Transaction>? _transactionRepository;
 
         public UnitOfWork(VendingDbContext context)
         {
             _context = context;
         }
 
-        public IRepository<User> Users => _users ??= new Repository<User>(_context);
-        public IRepository<Meter> Meters => _meters ??= new Repository<Meter>(_context);
-        public IRepository<ProcessingFee> ProcessingFees => _processingFees ??= new Repository<ProcessingFee>(_context);
-        public IRepository<Transaction> Transactions => _transactions ??= new Repository<Transaction>(_context);
+        public IRepository<User> UserRepository => _userRepository ??= new Repository<User>(_context);
+        public IRepository<Meter> MeterRepository => _meterRepository ??= new Repository<Meter>(_context);
+        public IRepository<ProcessingFee> ProcessingFeeRepository => _processingFeeRepository ??= new Repository<ProcessingFee>(_context);
+        public IRepository<Transaction> TransactionRepository => _transactionRepository ??= new Repository<Transaction>(_context);
 
         public async Task<int> SaveChangesAsync()
         {

@@ -24,7 +24,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<TokenResponseDataOut> ProcessTransactionAsync(TokenRequestDataIn dataIn)
         {
-            var meter = await _unitOfWork.Meters
+            var meter = await _unitOfWork.MeterRepository
                 .FirstOrDefaultAsync(m => m.MeterSerialNumber == dataIn.MeterSerialNumber);
 
             if (meter == null)
@@ -32,7 +32,7 @@ namespace VendingManagement.BLL.Services.Implementations
                 throw new KeyNotFoundException("Meter with given serial number was not found.");
             }
 
-            var user = await _unitOfWork.Users.GetByIdAsync(meter.UserId);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(meter.UserId);
 
             if (user == null)
             {
@@ -54,7 +54,7 @@ namespace VendingManagement.BLL.Services.Implementations
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _unitOfWork.Transactions.AddAsync(transaction);
+            await _unitOfWork.TransactionRepository.AddAsync(transaction);
             await _unitOfWork.SaveChangesAsync(); //namerno je ostavljeno da se sacuva u Pending stanju
             //pre poziva security modula
 
@@ -66,14 +66,14 @@ namespace VendingManagement.BLL.Services.Implementations
             catch (Exception)
             {
                 transaction.Status = TransactionStatus.Failed;
-                _unitOfWork.Transactions.Update(transaction);
+                _unitOfWork.TransactionRepository.Update(transaction);
                 await _unitOfWork.SaveChangesAsync();
                 throw;
             }
 
             transaction.Token = token;
             transaction.Status = TransactionStatus.Completed;
-            _unitOfWork.Transactions.Update(transaction);
+            _unitOfWork.TransactionRepository.Update(transaction);
             await _unitOfWork.SaveChangesAsync(); //snimi completed
 
             return new TokenResponseDataOut

@@ -16,22 +16,22 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<List<UserDataOut>> GetAllAsync()
         {
-            var users = await _unitOfWork.Users.GetAllAsync();
-            var meters = await _unitOfWork.Meters.GetAllAsync();
+            var users = await _unitOfWork.UserRepository.GetAllAsync();
+            var meters = await _unitOfWork.MeterRepository.GetAllAsync();
 
             return users.Select(u => MapToDataOut(u, meters.FirstOrDefault(m => m.UserId == u.Id))).ToList();
         }
 
         public async Task<UserDataOut> GetByIdAsync(int id)
         {
-            var user = await _unitOfWork.Users.GetByIdAsync(id);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
 
             if (user == null)
             {
                 throw new KeyNotFoundException("User not found.");
             }
 
-            var meter = await _unitOfWork.Meters.FirstOrDefaultAsync(m => m.UserId == id);
+            var meter = await _unitOfWork.MeterRepository.FirstOrDefaultAsync(m => m.UserId == id);
 
             return MapToDataOut(user, meter);
         }
@@ -53,8 +53,8 @@ namespace VendingManagement.BLL.Services.Implementations
                 User = user
             };
 
-            await _unitOfWork.Users.AddAsync(user);
-            await _unitOfWork.Meters.AddAsync(meter);
+            await _unitOfWork.UserRepository.AddAsync(user);
+            await _unitOfWork.MeterRepository.AddAsync(meter);
 
             await _unitOfWork.SaveChangesAsync();
 
@@ -63,7 +63,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<UserDataOut> UpdateAsync(int id, UserDataIn dataIn)
         {
-            var user = await _unitOfWork.Users.GetByIdAsync(id);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
 
             if (user == null)
             {
@@ -73,13 +73,13 @@ namespace VendingManagement.BLL.Services.Implementations
             user.FullName = dataIn.FullName;
             user.Address = dataIn.Address;
             user.PhoneNumber = dataIn.PhoneNumber;
-            _unitOfWork.Users.Update(user);
+            _unitOfWork.UserRepository.Update(user);
 
-            var meter = await _unitOfWork.Meters.FirstOrDefaultAsync(m => m.UserId == id);
+            var meter = await _unitOfWork.MeterRepository.FirstOrDefaultAsync(m => m.UserId == id);
             if (meter != null)
             {
                 meter.MeterSerialNumber = dataIn.MeterSerialNumber;
-                _unitOfWork.Meters.Update(meter);
+                _unitOfWork.MeterRepository.Update(meter);
             }
 
             await _unitOfWork.SaveChangesAsync();
@@ -89,20 +89,20 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task DeleteAsync(int id)
         {
-            var user = await _unitOfWork.Users.GetByIdAsync(id);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
 
             if (user == null)
             {
                 throw new KeyNotFoundException("User not found.");
             }
 
-            var meter = await _unitOfWork.Meters.FirstOrDefaultAsync(m => m.UserId == id);
+            var meter = await _unitOfWork.MeterRepository.FirstOrDefaultAsync(m => m.UserId == id);
             if (meter != null)
             {
-                _unitOfWork.Meters.Remove(meter);
+                _unitOfWork.MeterRepository.Remove(meter);
             }
 
-            _unitOfWork.Users.Remove(user);
+            _unitOfWork.UserRepository.Remove(user);
             await _unitOfWork.SaveChangesAsync();
         }
 

@@ -15,7 +15,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ProcessingFee> GetActiveFeeAsync()
         {
-            var activeFee = await _unitOfWork.ProcessingFees
+            var activeFee = await _unitOfWork.ProcessingFeeRepository
                 .FirstOrDefaultAsync(f => f.IsActive);
 
             if (activeFee == null)
@@ -28,13 +28,13 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ProcessingFee> ChangeFeeAsync(decimal fixedAmount, decimal percentageRate)
         {
-            var currentActiveFees = await _unitOfWork.ProcessingFees
+            var currentActiveFees = await _unitOfWork.ProcessingFeeRepository
                 .FindAsync(f => f.IsActive);
 
             foreach (var fee in currentActiveFees)
             {
                 fee.IsActive = false;
-                _unitOfWork.ProcessingFees.Update(fee);
+                _unitOfWork.ProcessingFeeRepository.Update(fee);
             }
 
             var newFee = new ProcessingFee
@@ -45,7 +45,7 @@ namespace VendingManagement.BLL.Services.Implementations
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _unitOfWork.ProcessingFees.AddAsync(newFee);
+            await _unitOfWork.ProcessingFeeRepository.AddAsync(newFee);
             await _unitOfWork.SaveChangesAsync();
 
             return newFee;
