@@ -1,47 +1,47 @@
 <div class="page">
   <header class="page-header">
     <span class="eyebrow">Vending Management</span>
-    <h1>Korisnici i brojila</h1>
+    <h1>Users and meters</h1>
   </header>
 
   <div class="layout">
     <section class="panel form-panel">
-      <h2>{{ isEditing ? 'Izmena korisnika' : 'Novi korisnik' }}</h2>
+      <h2>{{ isEditing ? 'Edit user' : 'New user' }}</h2>
 
       <div class="alert alert-error" *ngIf="errorMessage">{{ errorMessage }}</div>
       <div class="alert alert-success" *ngIf="successMessage">{{ successMessage }}</div>
 
       <form (ngSubmit)="onSubmit()">
         <div class="field">
-          <label for="fullName">Ime i prezime</label>
-          <input id="fullName" type="text" [(ngModel)]="currentUser.fullName" name="fullName" placeholder="Petar Petrović" />
+          <label for="fullName">Full name</label>
+          <input id="fullName" type="text" [(ngModel)]="currentUser.fullName" name="fullName" placeholder="Marko Marković" />
         </div>
 
         <div class="field">
-          <label for="address">Adresa</label>
-          <input id="address" type="text" [(ngModel)]="currentUser.address" name="address" placeholder="Ulica i broj, grad" />
+          <label for="address">Address</label>
+          <input id="address" type="text" [(ngModel)]="currentUser.address" name="address" placeholder="Street and number, city" />
         </div>
 
         <div class="field">
-          <label for="phoneNumber">Telefon</label>
+          <label for="phoneNumber">Phone number</label>
           <input id="phoneNumber" type="text" [(ngModel)]="currentUser.phoneNumber" name="phoneNumber" placeholder="06X XXX XXXX" />
         </div>
 
         <div class="field">
-          <label for="meterSerialNumber">Serijski broj brojila</label>
-          <input id="meterSerialNumber" type="text" [(ngModel)]="currentUser.meterSerialNumber" name="meterSerialNumber" placeholder="11 ili 13 cifara" />
+          <label for="meterSerialNumber">Meter serial number</label>
+          <input id="meterSerialNumber" type="text" [(ngModel)]="currentUser.meterSerialNumber" name="meterSerialNumber" placeholder="11 or 13 digits" />
         </div>
 
         <div class="actions">
-          <button type="submit" class="btn-primary">{{ isEditing ? 'Sačuvaj izmene' : 'Dodaj korisnika' }}</button>
-          <button type="button" class="btn-ghost" *ngIf="isEditing" (click)="resetForm()">Otkaži</button>
+          <button type="submit" class="btn-primary">{{ isEditing ? 'Save changes' : 'Add user' }}</button>
+          <button type="button" class="btn-ghost" *ngIf="isEditing" (click)="resetForm()">Cancel</button>
         </div>
       </form>
     </section>
 
     <section class="panel list-panel">
       <div class="list-header">
-        <h2>Svi korisnici</h2>
+        <h2>All users</h2>
         <span class="count">{{ users.length }}</span>
       </div>
 
@@ -49,10 +49,10 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Ime i prezime</th>
-            <th>Adresa</th>
-            <th>Telefon</th>
-            <th>Brojilo</th>
+            <th>Full name</th>
+            <th>Address</th>
+            <th>Phone</th>
+            <th>Meter</th>
             <th></th>
           </tr>
         </thead>
@@ -64,15 +64,15 @@
             <td>{{ user.phoneNumber }}</td>
             <td class="meter-cell">{{ user.meterSerialNumber || '—' }}</td>
             <td class="actions-cell">
-              <button class="btn-edit" (click)="editUser(user)">Izmeni</button>
-              <button class="btn-delete" (click)="deleteUser(user.id!)">Obriši</button>
+              <button class="btn-edit" (click)="editUser(user)">Edit</button>
+              <button class="btn-delete" (click)="deleteUser(user.id!)">Delete</button>
             </td>
           </tr>
         </tbody>
       </table>
 
       <div class="empty-state" *ngIf="users.length === 0">
-        Jos uvek nema unetih korisnika.
+        No users added yet.
       </div>
     </section>
   </div>

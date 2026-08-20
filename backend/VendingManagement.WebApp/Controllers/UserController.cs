@@ -39,7 +39,7 @@ namespace VendingManagement.WebApp.Controllers
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateException)
             {
-                return BadRequest(new { message = "Korisnik sa ovim serijskim brojem brojila već postoji." });
+                return BadRequest(new { message = "User with this meter serial number already exists." });
             }
         }
 

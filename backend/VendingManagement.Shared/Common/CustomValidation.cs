@@ -11,17 +11,17 @@ namespace VendingManagement.Shared.Common
 
             if (string.IsNullOrEmpty(stringValue))
             {
-                return new ValidationResult("Serijski broj brojila je obavezan.");
+                return new ValidationResult("Meter serial number is required.");
             }
 
             if (stringValue.Length != 11 && stringValue.Length != 13)
             {
-                return new ValidationResult("Serijski broj brojila mora imati 11 ili 13 cifara.");
+                return new ValidationResult("Meter serial number must have 11 or 13 digits.");
             }
 
             if (!stringValue.All(char.IsDigit))
             {
-                return new ValidationResult("Serijski broj brojila sme sadrzati samo cifre.");
+                return new ValidationResult("Meter serial number must contain digits only.");
             }
 
             return ValidationResult.Success;

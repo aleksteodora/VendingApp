@@ -5,12 +5,12 @@ namespace VendingManagement.Shared.DTOs
 {
     public class TokenRequestDataIn
     {
-        [Required(ErrorMessage = "Serijski broj brojila je obavezan.")]
+        [Required(ErrorMessage = "Meter serial number is required.")]
         [SerialNumber]
         public string MeterSerialNumber { get; set; }
 
-        [Required(ErrorMessage = "Iznos je obavezan.")]
-        [Range(0.00001, 999999999999.99999, ErrorMessage = "Iynos mora biti poyitivna vrednost.")]
+        [Required(ErrorMessage = "Amount is required.")]
+        [Range(0.00001, 999999999999.99999, ErrorMessage = "Amount must be a positive value.")]
         public decimal Amount { get; set; }
     }
 }

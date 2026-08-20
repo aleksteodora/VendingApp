@@ -5,20 +5,20 @@ namespace VendingManagement.Shared.DTOs
 {
     public class UserDataIn
     {
-        [Required(ErrorMessage = "Ime i preyime je obavezno.")]
+        [Required(ErrorMessage = "Full name is required.")]
         [MaxLength(200)]
         public string FullName { get; set; }
 
-        [Required(ErrorMessage = "Adresa je obavezna.")]
+        [Required(ErrorMessage = "Address is required.")]
         [MaxLength(300)]
         public string Address { get; set; }
 
-        [Required(ErrorMessage = "Broj telefona je obavezan.")]
-        [RegularExpression(@"^\d+$", ErrorMessage = "Broj telefona moze sadryati samo cifre.")]
+        [Required(ErrorMessage = "Phone number is required.")]
+        [RegularExpression(@"^\d+$", ErrorMessage = "Phone number must contain digits only.")]
         [MaxLength(30)]
         public string PhoneNumber { get; set; }
 
-        [Required(ErrorMessage = "Serijski broj brojila je obavezan.")]
+        [Required(ErrorMessage = "Meter serial number is required.")]
         [SerialNumber]
         public string MeterSerialNumber { get; set; }
     }
