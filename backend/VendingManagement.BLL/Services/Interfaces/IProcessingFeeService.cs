@@ -1,10 +1,11 @@
 ﻿using VendingManagement.DAL.Entities;
+using VendingManagement.Shared.Common;
 
 namespace VendingManagement.BLL.Services.Interfaces
 {
     public interface IProcessingFeeService
     {
-        Task<ProcessingFee> GetActiveFeeAsync();
-        Task<ProcessingFee> ChangeFeeAsync(decimal fixedAmount, decimal percentageRate);
+        Task<ResponsePackage<ProcessingFee>> GetActiveFeeAsync();
+        Task<ResponsePackage<ProcessingFee>> ChangeFeeAsync(decimal fixedAmount, decimal percentageRate);
     }
 }

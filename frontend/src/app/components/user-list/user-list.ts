@@ -75,17 +75,22 @@ export class UserList implements OnInit {
     }
   }
 
-  private handleError(err: any): void {
-    console.error('Request failed:', err);
-    if (err.status === 400) {
-      this.errorMessage = 'Proverite da li su sva polja ispravno popunjena.';
-    } else if (err.status === 0) {
-      this.errorMessage = 'Nije moguće povezati se sa serverom.';
-    } else {
-      this.errorMessage = 'Došlo je do greške. Pokušajte ponovo.';
-    }
-    this.cdr.detectChanges();
+private handleError(err: any): void {
+  console.error('Request failed:', err);
+
+  if (err.status === 0) {
+    this.errorMessage = 'Nije moguće povezati se sa serverom.';
+  } else if (err.error?.message) {
+    this.errorMessage = err.error.message;
+  } else if (err.error?.errors) {
+    const firstError = Object.values(err.error.errors)[0] as string[];
+    this.errorMessage = firstError?.[0] || 'Proverite unos i pokušajte ponovo.';
+  } else {
+    this.errorMessage = 'Došlo je do greške. Pokušajte ponovo.';
   }
+
+  this.cdr.detectChanges();
+}
 
   editUser(user: UserModel): void {
     this.currentUser = { ...user };

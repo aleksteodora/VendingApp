@@ -1,6 +1,8 @@
 ﻿using VendingManagement.DAL.Entities;
 using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.Shared.DTOs;
+using VendingManagement.Shared.Common;
+using VendingManagement.Shared.Constants;
 using VendingManagement.BLL.Services.Interfaces;
 
 namespace VendingManagement.BLL.Services.Implementations
@@ -14,29 +16,41 @@ namespace VendingManagement.BLL.Services.Implementations
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<List<UserDataOut>> GetAllAsync()
+        public async Task<ResponsePackage<List<UserDataOut>>> GetAllAsync()
         {
             var users = await _unitOfWork.UserRepository.GetAllAsync();
             var meters = await _unitOfWork.MeterRepository.GetAllAsync();
 
-            return users.Select(u => MapToDataOut(u, meters.FirstOrDefault(m => m.UserId == u.Id))).ToList();
+            var result = users
+                .Select(u => MapToDataOut(u, meters.FirstOrDefault(m => m.UserId == u.Id)))
+                .ToList();
+
+            return new ResponsePackage<List<UserDataOut>>(
+                result,
+                ResponseStatus.OK,
+                "Users retrieved successfully.");
         }
 
-        public async Task<UserDataOut> GetByIdAsync(int id)
+        public async Task<ResponsePackage<UserDataOut>> GetByIdAsync(int id)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
 
             if (user == null)
             {
-                throw new KeyNotFoundException("User not found.");
+                return new ResponsePackage<UserDataOut>(
+                    ResponseStatus.NotFound,
+                    "User not found.");
             }
 
             var meter = await _unitOfWork.MeterRepository.FirstOrDefaultAsync(m => m.UserId == id);
 
-            return MapToDataOut(user, meter);
+            return new ResponsePackage<UserDataOut>(
+                MapToDataOut(user, meter),
+                ResponseStatus.OK,
+                "User retrieved successfully.");
         }
 
-        public async Task<UserDataOut> CreateAsync(UserDataIn dataIn)
+        public async Task<ResponsePackage<UserDataOut>> CreateAsync(UserDataIn dataIn)
         {
             var user = new User
             {
@@ -55,19 +69,23 @@ namespace VendingManagement.BLL.Services.Implementations
 
             await _unitOfWork.UserRepository.AddAsync(user);
             await _unitOfWork.MeterRepository.AddAsync(meter);
-
             await _unitOfWork.SaveChangesAsync();
 
-            return MapToDataOut(user, meter);
+            return new ResponsePackage<UserDataOut>(
+                MapToDataOut(user, meter),
+                ResponseStatus.Created,
+                "User created successfully.");
         }
 
-        public async Task<UserDataOut> UpdateAsync(int id, UserDataIn dataIn)
+        public async Task<ResponsePackage<UserDataOut>> UpdateAsync(int id, UserDataIn dataIn)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
 
             if (user == null)
             {
-                throw new KeyNotFoundException("User not found.");
+                return new ResponsePackage<UserDataOut>(
+                    ResponseStatus.NotFound,
+                    "User not found.");
             }
 
             user.FullName = dataIn.FullName;
@@ -84,16 +102,21 @@ namespace VendingManagement.BLL.Services.Implementations
 
             await _unitOfWork.SaveChangesAsync();
 
-            return MapToDataOut(user, meter);
+            return new ResponsePackage<UserDataOut>(
+                MapToDataOut(user, meter),
+                ResponseStatus.OK,
+                "User updated successfully.");
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<ResponsePackageNoData> DeleteAsync(int id)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
 
             if (user == null)
             {
-                throw new KeyNotFoundException("User not found.");
+                return new ResponsePackageNoData(
+                    ResponseStatus.NotFound,
+                    "User not found.");
             }
 
             var meter = await _unitOfWork.MeterRepository.FirstOrDefaultAsync(m => m.UserId == id);
@@ -104,6 +127,10 @@ namespace VendingManagement.BLL.Services.Implementations
 
             _unitOfWork.UserRepository.Remove(user);
             await _unitOfWork.SaveChangesAsync();
+
+            return new ResponsePackageNoData(
+                ResponseStatus.OK,
+                "User deleted successfully.");
         }
 
         private static UserDataOut MapToDataOut(User user, Meter? meter)

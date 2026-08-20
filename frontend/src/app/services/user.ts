@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 export interface UserModel {
   id?: number;
@@ -8,6 +8,12 @@ export interface UserModel {
   address: string;
   phoneNumber: string;
   meterSerialNumber: string;
+}
+
+interface ResponsePackage<T> {
+  status: number;
+  message: string;
+  data: T;
 }
 
 @Injectable({
@@ -19,22 +25,27 @@ export class UserService {
   constructor(private http: HttpClient) { }
 
   getAll(): Observable<UserModel[]> {
-    return this.http.get<UserModel[]>(this.baseUrl);
+    return this.http.get<ResponsePackage<UserModel[]>>(this.baseUrl)
+      .pipe(map(response => response.data));
   }
 
   getById(id: number): Observable<UserModel> {
-    return this.http.get<UserModel>(`${this.baseUrl}/${id}`);
+    return this.http.get<ResponsePackage<UserModel>>(`${this.baseUrl}/${id}`)
+      .pipe(map(response => response.data));
   }
 
   create(user: UserModel): Observable<UserModel> {
-    return this.http.post<UserModel>(this.baseUrl, user);
+    return this.http.post<ResponsePackage<UserModel>>(this.baseUrl, user)
+      .pipe(map(response => response.data));
   }
 
   update(id: number, user: UserModel): Observable<UserModel> {
-    return this.http.put<UserModel>(`${this.baseUrl}/${id}`, user);
+    return this.http.put<ResponsePackage<UserModel>>(`${this.baseUrl}/${id}`, user)
+      .pipe(map(response => response.data));
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+    return this.http.delete<ResponsePackage<void>>(`${this.baseUrl}/${id}`)
+      .pipe(map(() => undefined));
   }
 }

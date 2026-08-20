@@ -1,6 +1,8 @@
 ﻿using VendingManagement.DAL.Entities;
 using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.BLL.Services.Interfaces;
+using VendingManagement.Shared.Common;
+using VendingManagement.Shared.Constants;
 
 namespace VendingManagement.BLL.Services.Implementations
 {
@@ -13,20 +15,25 @@ namespace VendingManagement.BLL.Services.Implementations
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ProcessingFee> GetActiveFeeAsync()
+        public async Task<ResponsePackage<ProcessingFee>> GetActiveFeeAsync()
         {
             var activeFee = await _unitOfWork.ProcessingFeeRepository
                 .FirstOrDefaultAsync(f => f.IsActive);
 
             if (activeFee == null)
             {
-                throw new InvalidOperationException("No active processing fee found.");
+                return new ResponsePackage<ProcessingFee>(
+                    ResponseStatus.NotFound,
+                    "No active processing fee found.");
             }
 
-            return activeFee;
+            return new ResponsePackage<ProcessingFee>(
+                activeFee,
+                ResponseStatus.OK,
+                "Active processing fee retrieved successfully.");
         }
 
-        public async Task<ProcessingFee> ChangeFeeAsync(decimal fixedAmount, decimal percentageRate)
+        public async Task<ResponsePackage<ProcessingFee>> ChangeFeeAsync(decimal fixedAmount, decimal percentageRate)
         {
             var currentActiveFees = await _unitOfWork.ProcessingFeeRepository
                 .FindAsync(f => f.IsActive);
@@ -48,7 +55,10 @@ namespace VendingManagement.BLL.Services.Implementations
             await _unitOfWork.ProcessingFeeRepository.AddAsync(newFee);
             await _unitOfWork.SaveChangesAsync();
 
-            return newFee;
+            return new ResponsePackage<ProcessingFee>(
+                newFee,
+                ResponseStatus.OK,
+                "Processing fee changed successfully.");
         }
     }
 }

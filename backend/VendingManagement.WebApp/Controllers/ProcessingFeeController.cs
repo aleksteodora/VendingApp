@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.Shared.DTOs;
+using VendingManagement.Shared.Constants;
+using VendingManagement.BLL.Services.Interfaces;
 
 namespace VendingManagement.WebApp.Controllers
 {
@@ -18,15 +19,15 @@ namespace VendingManagement.WebApp.Controllers
         [HttpGet("active")]
         public async Task<IActionResult> GetActive()
         {
-            var fee = await _processingFeeService.GetActiveFeeAsync();
-            return Ok(fee);
+            var result = await _processingFeeService.GetActiveFeeAsync();
+            return StatusCode((int)result.Status, result);
         }
 
         [HttpPut("change")]
         public async Task<IActionResult> Change([FromBody] ProcessingFeeDataIn dataIn)
         {
-            var fee = await _processingFeeService.ChangeFeeAsync(dataIn.FixedAmount, dataIn.PercentageRate);
-            return Ok(fee);
+            var result = await _processingFeeService.ChangeFeeAsync(dataIn.FixedAmount, dataIn.PercentageRate);
+            return StatusCode((int)result.Status, result);
         }
     }
 }
