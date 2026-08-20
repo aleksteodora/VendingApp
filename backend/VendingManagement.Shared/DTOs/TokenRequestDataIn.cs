@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using VendingManagement.Shared.Common;
 
 namespace VendingManagement.Shared.DTOs
@@ -9,8 +8,9 @@ namespace VendingManagement.Shared.DTOs
         [Required(ErrorMessage = "Meter serial number is required.")]
         [SerialNumber]
         public string MeterSerialNumber { get; set; }
+
         [Required(ErrorMessage = "Amount is required.")]
-        [Range(-999999999999.99999, 999999999999.99999, ErrorMessage = "The Amount field must have no more than 17 digits in total, with 5 decimal places.")]
+        [Range(0.00001, 999999999999.99999, ErrorMessage = "Amount must be a positive value.")]
         public decimal Amount { get; set; }
     }
 }

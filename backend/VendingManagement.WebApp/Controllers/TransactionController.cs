@@ -18,24 +18,8 @@ namespace VendingManagement.WebApp.Controllers
         [HttpPost("buy-token")]
         public async Task<IActionResult> BuyToken([FromBody] TokenRequestDataIn dataIn)
         {
-            try
-            {
-                var result = await _transactionService.ProcessTransactionAsync(dataIn);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { 
-                    message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    message = ex.Message
-                });
-            }
+            var result = await _transactionService.ProcessTransactionAsync(dataIn);
+            return StatusCode((int)result.Status, result);
         }
     }
 }

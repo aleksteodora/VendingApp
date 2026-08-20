@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.Shared.DTOs;
+using VendingManagement.BLL.Services.Interfaces;
 
 namespace VendingManagement.WebApp.Controllers
 {
@@ -19,22 +18,15 @@ namespace VendingManagement.WebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var users = await _userService.GetAllAsync();
-            return Ok(users);
+            var result = await _userService.GetAllAsync();
+            return StatusCode((int)result.Status, result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            try
-            {
-                var user = await _userService.GetByIdAsync(id);
-                return Ok(user);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
+            var result = await _userService.GetByIdAsync(id);
+            return StatusCode((int)result.Status, result);
         }
 
         [HttpPost]
@@ -42,12 +34,12 @@ namespace VendingManagement.WebApp.Controllers
         {
             try
             {
-                var user = await _userService.CreateAsync(dataIn);
-                return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+                var result = await _userService.CreateAsync(dataIn);
+                return StatusCode((int)result.Status, result);
             }
-            catch (DbUpdateException)
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException)
             {
-                return BadRequest(new { message = "Korisnik sa ovim serijskim brojem brojila već postoji." });
+                return BadRequest(new { message = "User with this meter serial number already exists." });
             }
         }
 
@@ -56,14 +48,10 @@ namespace VendingManagement.WebApp.Controllers
         {
             try
             {
-                var user = await _userService.UpdateAsync(id, dataIn);
-                return Ok(user);
+                var result = await _userService.UpdateAsync(id, dataIn);
+                return StatusCode((int)result.Status, result);
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (DbUpdateException)
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException)
             {
                 return BadRequest(new { message = "Korisnik sa ovim serijskim brojem brojila već postoji." });
             }
@@ -72,15 +60,8 @@ namespace VendingManagement.WebApp.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                await _userService.DeleteAsync(id);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
+            var result = await _userService.DeleteAsync(id);
+            return StatusCode((int)result.Status, result);
         }
     }
 }

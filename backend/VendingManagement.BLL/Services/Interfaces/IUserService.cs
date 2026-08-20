@@ -1,13 +1,14 @@
-﻿using VendingManagement.Shared.DTOs;
+﻿using VendingManagement.Shared.Common;
+using VendingManagement.Shared.DTOs;
 
 namespace VendingManagement.BLL.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<List<UserDataOut>> GetAllAsync();
-        Task<UserDataOut> GetByIdAsync(int id);
-        Task<UserDataOut> CreateAsync(UserDataIn dataIn);
-        Task<UserDataOut> UpdateAsync(int id, UserDataIn dataIn);
-        Task DeleteAsync(int id);
+        Task<ResponsePackage<List<UserDataOut>>> GetAllAsync();
+        Task<ResponsePackage<UserDataOut>> GetByIdAsync(int id);
+        Task<ResponsePackage<UserDataOut>> CreateAsync(UserDataIn dataIn);
+        Task<ResponsePackage<UserDataOut>> UpdateAsync(int id, UserDataIn dataIn);
+        Task<ResponsePackageNoData> DeleteAsync(int id);
     }
 }

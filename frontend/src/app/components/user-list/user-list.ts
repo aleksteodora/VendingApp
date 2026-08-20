@@ -36,7 +36,7 @@ export class UserList implements OnInit {
       },
       error: (err) => {
         console.error('Error loading users:', err);
-        this.errorMessage = 'Lista korisnika nije mogla da se učita. Proverite da li je server pokrenut.';
+        this.errorMessage = 'Could not load the user list. Check if the server is running.';
         this.cdr.detectChanges();
       }
     });
@@ -48,7 +48,7 @@ export class UserList implements OnInit {
 
     if (!this.currentUser.fullName?.trim() || !this.currentUser.address?.trim() ||
         !this.currentUser.phoneNumber?.trim() || !this.currentUser.meterSerialNumber?.trim()) {
-      this.errorMessage = 'Sva polja su obavezna. Proverite unos i pokušajte ponovo.';
+      this.errorMessage = 'All fields are required. Please check your input and try again.';
       return;
     }
 
@@ -56,7 +56,7 @@ export class UserList implements OnInit {
       this.userService.update(this.currentUser.id, this.currentUser).subscribe({
         next: () => {
           this.loadUsers();
-          this.successMessage = 'Korisnik je uspešno izmenjen.';
+          this.successMessage = 'User updated successfully.';
           this.resetForm();
           this.cdr.detectChanges();
         },
@@ -66,7 +66,7 @@ export class UserList implements OnInit {
       this.userService.create(this.currentUser).subscribe({
         next: () => {
           this.loadUsers();
-          this.successMessage = 'Korisnik je uspešno dodat.';
+          this.successMessage = 'User added successfully.';
           this.resetForm();
           this.cdr.detectChanges();
         },
@@ -77,13 +77,18 @@ export class UserList implements OnInit {
 
   private handleError(err: any): void {
     console.error('Request failed:', err);
-    if (err.status === 400) {
-      this.errorMessage = 'Proverite da li su sva polja ispravno popunjena.';
-    } else if (err.status === 0) {
-      this.errorMessage = 'Nije moguće povezati se sa serverom.';
+
+    if (err.status === 0) {
+      this.errorMessage = 'Could not connect to the server.';
+    } else if (err.error?.message) {
+      this.errorMessage = err.error.message;
+    } else if (err.error?.errors) {
+      const firstError = Object.values(err.error.errors)[0] as string[];
+      this.errorMessage = firstError?.[0] || 'Please check your input and try again.';
     } else {
-      this.errorMessage = 'Došlo je do greške. Pokušajte ponovo.';
+      this.errorMessage = 'Something went wrong. Please try again.';
     }
+
     this.cdr.detectChanges();
   }
 
@@ -96,11 +101,11 @@ export class UserList implements OnInit {
   }
 
   deleteUser(id: number): void {
-    if (confirm('Da li ste sigurni da želite da obrišete ovog korisnika?')) {
+    if (confirm('Are you sure you want to delete this user?')) {
       this.userService.delete(id).subscribe({
         next: () => {
           this.loadUsers();
-          this.successMessage = 'Korisnik je obrisan.';
+          this.successMessage = 'User deleted.';
           this.cdr.detectChanges();
         },
         error: (err) => this.handleError(err)
