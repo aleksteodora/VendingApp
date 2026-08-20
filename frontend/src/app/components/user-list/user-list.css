@@ -281,3 +281,25 @@ td {
   color: #a49b8f;
   font-size: 14px;
 }
+
+/* ---------- Pagination ---------- */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-top: 1px solid #e4dfd8;
+}
+
+.page-info {
+  font-size: 13px;
+  color: #55504a;
+  font-variant-numeric: tabular-nums;
+}
+
+.pagination .btn-ghost:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

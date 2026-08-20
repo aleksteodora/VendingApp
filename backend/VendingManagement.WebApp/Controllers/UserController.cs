@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VendingManagement.Shared.DTOs;
 using VendingManagement.BLL.Services.Interfaces;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VendingManagement.WebApp.Controllers
 {
@@ -16,9 +17,9 @@ namespace VendingManagement.WebApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
-            var result = await _userService.GetAllAsync();
+            var result = await _userService.GetAllAsync(pageNumber, pageSize);
             return StatusCode((int)result.Status, result);
         }
 
@@ -53,7 +54,7 @@ namespace VendingManagement.WebApp.Controllers
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateException)
             {
-                return BadRequest(new { message = "Korisnik sa ovim serijskim brojem brojila već postoji." });
+                return BadRequest(new { message = "User with this meter serial number already exists." });
             }
         }
 

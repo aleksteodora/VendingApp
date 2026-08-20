@@ -36,6 +36,18 @@ namespace VendingManagement.DAL.Repositories.Implementations
             return await _dbSet.FirstOrDefaultAsync(predicate);
         }
 
+        public async Task<(List<T> Items, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize)
+        {
+            var totalCount = await _dbSet.CountAsync();
+
+            var items = await _dbSet
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
