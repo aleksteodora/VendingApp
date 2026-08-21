@@ -25,11 +25,5 @@ namespace VendingManagement.DAL.Repositories.Implementations
             return await _context.ProcessingFees
                 .Where(x => x.IsActive).ToListAsync();
         }
-
-        public async Task<List<ProcessingFee>> GetActiveProcessingFeesAsync()
-        {
-            return await _context.ProcessingFees
-                .Where(x => x.IsActive).ToListAsync();
-        }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VendingManagement.Shared.DTOs;
 using VendingManagement.BLL.Services.Interfaces;
+using VendingManagement.WebApp.Security;
 
 namespace VendingManagement.WebApp.Controllers
 {
     [Route("api/transaction")]
     [ApiController]
+    [ApiKeyAuth]
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
