@@ -38,7 +38,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
             foreach (var fee in currentActiveFees)
             {
-                fee.IsActive = false;
+                fee.IsDeleted = true;
                 _unitOfWork.ProcessingFeeRepository.Update(fee);
             }
 
@@ -46,7 +46,7 @@ namespace VendingManagement.BLL.Services.Implementations
             {
                 FixedAmount = fixedAmount,
                 PercentageRate = percentageRate,
-                IsActive = true,
+                IsDeleted = false,
                 CreatedAt = DateTime.UtcNow
             };
 

@@ -16,7 +16,7 @@ namespace VendingManagement.DAL.Entities
         [Column(TypeName = "decimal(18,5)")]
         public decimal PercentageRate { get; set; }
 
-        public bool IsActive { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
