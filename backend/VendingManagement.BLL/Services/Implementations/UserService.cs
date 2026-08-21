@@ -47,7 +47,7 @@ namespace VendingManagement.BLL.Services.Implementations
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
 
-            if (user == null)
+            if (user == null || user.IsDeleted)
             {
                 return new ResponsePackage<UserDataOut>(
                     ResponseStatus.NotFound,
@@ -93,7 +93,7 @@ namespace VendingManagement.BLL.Services.Implementations
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
 
-            if (user == null)
+            if (user == null || user.IsDeleted)
             {
                 return new ResponsePackage<UserDataOut>(
                     ResponseStatus.NotFound,
@@ -124,7 +124,7 @@ namespace VendingManagement.BLL.Services.Implementations
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
 
-            if (user == null)
+            if (user == null || user.IsDeleted)
             {
                 return new ResponsePackageNoData(
                     ResponseStatus.NotFound,
@@ -134,10 +134,12 @@ namespace VendingManagement.BLL.Services.Implementations
             var meter = await _unitOfWork.MeterRepository.GetByUserIdAsync(id);
             if (meter != null)
             {
-                _unitOfWork.MeterRepository.Remove(meter);
+                meter.IsDeleted = true;
+                _unitOfWork.MeterRepository.Update(meter);
             }
 
-            _unitOfWork.UserRepository.Remove(user);
+            user.IsDeleted = true;
+            _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveChangesAsync();
 
             return new ResponsePackageNoData(

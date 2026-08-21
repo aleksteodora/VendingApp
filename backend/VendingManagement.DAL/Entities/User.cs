@@ -29,5 +29,7 @@ namespace VendingManagement.DAL.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public Meter Meter { get; set; }
+
+        public bool IsDeleted { get; set; } = false;
     }
 }

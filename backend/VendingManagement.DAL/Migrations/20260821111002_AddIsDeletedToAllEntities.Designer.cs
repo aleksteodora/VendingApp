@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VendingManagement.DAL.Context;
@@ -11,9 +12,11 @@ using VendingManagement.DAL.Context;
 namespace VendingManagement.DAL.Migrations
 {
     [DbContext(typeof(VendingDbContext))]
-    partial class VendingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260821111002_AddIsDeletedToAllEntities")]
+    partial class AddIsDeletedToAllEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,8 +47,7 @@ namespace VendingManagement.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MeterSerialNumber")
-                        .IsUnique()
-                        .HasFilter("\"IsDeleted\" = false");
+                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
