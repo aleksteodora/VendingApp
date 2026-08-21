@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace VendingManagement.DAL.Entities
 {
-    [Index(nameof(MeterSerialNumber), IsUnique = true)]
     public class Meter
     {
         [Key]
@@ -19,5 +18,7 @@ namespace VendingManagement.DAL.Entities
 
         [ForeignKey(nameof(UserId))]
         public User User { get; set; }
+
+        public bool IsDeleted { get; set; } = false;
     }
 }

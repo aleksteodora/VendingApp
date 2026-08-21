@@ -13,5 +13,15 @@ namespace VendingManagement.DAL.Context
         public DbSet<Meter> Meters { get; set; }
         public DbSet<ProcessingFee> ProcessingFees { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Meter>()
+                .HasIndex(m => m.MeterSerialNumber)
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false");
+        }
     }
 }

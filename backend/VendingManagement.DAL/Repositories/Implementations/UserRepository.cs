@@ -16,9 +16,10 @@ namespace VendingManagement.DAL.Repositories.Implementations
 
         public async Task<(List<User> Users, int TotalCount)> GetPagedWithMeterAsync(int pageNumber, int pageSize)
         {
-            var totalCount = await _context.Users.CountAsync();
+            var query = _context.Users.Where(u => !u.IsDeleted);
+            var totalCount = await query.CountAsync();
 
-            var users = await _context.Users
+            var users = await query
                 .Include(u => u.Meter)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

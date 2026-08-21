@@ -38,5 +38,7 @@ namespace VendingManagement.DAL.Entities
         public TransactionStatus Status { get; set; } = TransactionStatus.Pending;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public bool IsDeleted { get; set; } = false;
     }
 }
