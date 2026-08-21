@@ -17,13 +17,13 @@ namespace VendingManagement.DAL.Repositories.Implementations
         public async Task<ProcessingFee?> GetActiveProcessingFeeAsync()
         {
             return await _context.ProcessingFees
-                .FirstOrDefaultAsync(x => x.IsActive);
+                .FirstOrDefaultAsync(x => !x.IsDeleted);
         }
 
         public async Task<List<ProcessingFee>> GetActiveProcessingFeesAsync()
         {
             return await _context.ProcessingFees
-                .Where(x => x.IsActive).ToListAsync();
+                .Where(x => !x.IsDeleted).ToListAsync();
         }
     }
 }
