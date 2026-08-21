@@ -26,5 +26,10 @@ namespace VendingManagement.DAL.Repositories.Implementations
 
             return (users, totalCount);
         }
+
+        public async Task<bool> ExistsByApiKeyAsync(string apiKey)
+        {
+            return await _context.Users.AnyAsync(u => u.ApiKey == apiKey);
+        }
     }
 }
