@@ -54,7 +54,7 @@ namespace VendingManagement.BLL.Services.Implementations
                     "User not found.");
             }
 
-            var meter = await _unitOfWork.MeterRepository.FirstOrDefaultAsync(m => m.UserId == id);
+            var meter = await _unitOfWork.MeterRepository.GetByUserIdAsync(id);
 
             return new ResponsePackage<UserDataOut>(
                 MapToDataOut(user, meter),
@@ -105,7 +105,7 @@ namespace VendingManagement.BLL.Services.Implementations
             user.PhoneNumber = dataIn.PhoneNumber;
             _unitOfWork.UserRepository.Update(user);
 
-            var meter = await _unitOfWork.MeterRepository.FirstOrDefaultAsync(m => m.UserId == id);
+            var meter = await _unitOfWork.MeterRepository.GetByUserIdAsync(id);
             if (meter != null)
             {
                 meter.MeterSerialNumber = dataIn.MeterSerialNumber;
@@ -131,7 +131,7 @@ namespace VendingManagement.BLL.Services.Implementations
                     "User not found.");
             }
 
-            var meter = await _unitOfWork.MeterRepository.FirstOrDefaultAsync(m => m.UserId == id);
+            var meter = await _unitOfWork.MeterRepository.GetByUserIdAsync(id);
             if (meter != null)
             {
                 _unitOfWork.MeterRepository.Remove(meter);

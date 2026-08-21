@@ -26,8 +26,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ResponsePackage<TokenResponseDataOut>> ProcessTransactionAsync(TokenRequestDataIn dataIn)
         {
-            var meter = await _unitOfWork.MeterRepository
-                .FirstOrDefaultAsync(m => m.MeterSerialNumber == dataIn.MeterSerialNumber);
+            var meter = await _unitOfWork.MeterRepository.GetBySerialNumberAsync(dataIn.MeterSerialNumber);
 
             if (meter == null)
             {
