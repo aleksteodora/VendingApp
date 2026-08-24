@@ -26,7 +26,7 @@ namespace VendingManagement.BLL.Services.Implementations
             var (users, totalCount) = await _unitOfWork.CustomerRepository.GetPagedWithMeterAsync(pageNumber, pageSize);
 
             var items = users
-                .Select(u => MapToDataOut(u, u.Meter))
+                .Select(u => MapToDataOut(u))
                 .ToList();
 
             var pagedResult = new PagedResult<UserDataOut>
@@ -45,7 +45,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ResponsePackage<UserDataOut>> GetByIdAsync(int id)
         {
-            var user = await _unitOfWork.CustomerRepository.GetByIdAsync(id);
+            var user = await _unitOfWork.CustomerRepository.GetByIdWithMeterAsync(id);
 
             if (user == null || user.IsDeleted)
             {
@@ -54,44 +54,47 @@ namespace VendingManagement.BLL.Services.Implementations
                     "User not found.");
             }
 
-            var meter = await _unitOfWork.MeterRepository.GetByUserIdAsync(id);
-
             return new ResponsePackage<UserDataOut>(
-                MapToDataOut(user, meter),
+                MapToDataOut(user),
                 ResponseStatus.OK,
                 "User retrieved successfully.");
         }
-
+        
         public async Task<ResponsePackage<UserDataOut>> CreateAsync(UserDataIn dataIn)
         {
+            var existingMeter = await _unitOfWork.MeterRepository.GetBySerialNumberAsync(dataIn.MeterSerialNumber);
+            if (existingMeter != null && !existingMeter.IsDeleted)
+            {
+                return new ResponsePackage<UserDataOut>(
+                    ResponseStatus.BadRequest,
+                    "A user with this meter serial number already exists.");
+            }
+
             var user = new Customer
             {
                 FullName = dataIn.FullName,
                 Address = dataIn.Address,
                 PhoneNumber = dataIn.PhoneNumber,
                 ApiKey = Guid.NewGuid().ToString(),
-                CreatedAt = DateTime.UtcNow
-            };
-
-            var meter = new Meter
-            {
-                MeterSerialNumber = dataIn.MeterSerialNumber,
-                User = user
+                CreatedAt = DateTime.UtcNow,
+                Meter = new Meter
+                {
+                    MeterSerialNumber = dataIn.MeterSerialNumber,
+                }
             };
 
             await _unitOfWork.CustomerRepository.AddAsync(user);
-            await _unitOfWork.MeterRepository.AddAsync(meter);
             await _unitOfWork.SaveChangesAsync();
 
             return new ResponsePackage<UserDataOut>(
-                MapToDataOut(user, meter),
+                MapToDataOut(user),
                 ResponseStatus.Created,
                 "User created successfully.");
         }
 
         public async Task<ResponsePackage<UserDataOut>> UpdateAsync(int id, UserDataIn dataIn)
         {
-            var user = await _unitOfWork.CustomerRepository.GetByIdAsync(id);
+            var user = await _unitOfWork.CustomerRepository.GetByIdWithMeterAsync(id);
 
             if (user == null || user.IsDeleted)
             {
@@ -100,29 +103,34 @@ namespace VendingManagement.BLL.Services.Implementations
                     "User not found.");
             }
 
+            var existingMeter = await _unitOfWork.MeterRepository.GetBySerialNumberAsync(dataIn.MeterSerialNumber);
+            if (existingMeter != null && !existingMeter.IsDeleted && existingMeter.UserId != id)
+            {
+                return new ResponsePackage<UserDataOut>(
+                    ResponseStatus.BadRequest,
+                    "A user with this meter serial number already exists.");
+            }
+
             user.FullName = dataIn.FullName;
             user.Address = dataIn.Address;
             user.PhoneNumber = dataIn.PhoneNumber;
-            _unitOfWork.CustomerRepository.Update(user);
 
-            var meter = await _unitOfWork.MeterRepository.GetByUserIdAsync(id);
-            if (meter != null)
+            if (user.Meter != null)
             {
-                meter.MeterSerialNumber = dataIn.MeterSerialNumber;
-                _unitOfWork.MeterRepository.Update(meter);
+                user.Meter.MeterSerialNumber = dataIn.MeterSerialNumber;
             }
 
             await _unitOfWork.SaveChangesAsync();
 
             return new ResponsePackage<UserDataOut>(
-                MapToDataOut(user, meter),
+                MapToDataOut(user),
                 ResponseStatus.OK,
                 "User updated successfully.");
         }
 
         public async Task<ResponsePackageNoData> DeleteAsync(int id)
         {
-            var user = await _unitOfWork.CustomerRepository.GetByIdAsync(id);
+            var user = await _unitOfWork.CustomerRepository.GetByIdWithMeterAsync(id);
 
             if (user == null || user.IsDeleted)
             {
@@ -131,15 +139,12 @@ namespace VendingManagement.BLL.Services.Implementations
                     "User not found.");
             }
 
-            var meter = await _unitOfWork.MeterRepository.GetByUserIdAsync(id);
-            if (meter != null)
+            if (user.Meter != null)
             {
-                meter.IsDeleted = true;
-                _unitOfWork.MeterRepository.Update(meter);
+                user.Meter.IsDeleted = true;
             }
 
             user.IsDeleted = true;
-            _unitOfWork.CustomerRepository.Update(user);
             await _unitOfWork.SaveChangesAsync();
 
             return new ResponsePackageNoData(
@@ -147,7 +152,7 @@ namespace VendingManagement.BLL.Services.Implementations
                 "User deleted successfully.");
         }
 
-        private static UserDataOut MapToDataOut(Customer user, Meter? meter)
+        private static UserDataOut MapToDataOut(Customer user)
         {
             return new UserDataOut
             {
@@ -155,7 +160,7 @@ namespace VendingManagement.BLL.Services.Implementations
                 FullName = user.FullName,
                 Address = user.Address,
                 PhoneNumber = user.PhoneNumber,
-                MeterSerialNumber = meter?.MeterSerialNumber
+                MeterSerialNumber = user.Meter?.MeterSerialNumber
             };
         }
     }
