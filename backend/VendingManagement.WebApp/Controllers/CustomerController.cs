@@ -1,32 +1,31 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VendingManagement.Shared.DTOs;
 using VendingManagement.BLL.Services.Interfaces;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VendingManagement.WebApp.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class CustomerController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly ICustomerService _customerService;
 
-        public UserController(IUserService userService)
+        public CustomerController(ICustomerService customerService)
         {
-            _userService = userService;
+            _customerService = customerService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
-            var result = await _userService.GetAllAsync(pageNumber, pageSize);
+            var result = await _customerService.GetAllAsync(pageNumber, pageSize);
             return StatusCode((int)result.Status, result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var result = await _userService.GetByIdAsync(id);
+            var result = await _customerService.GetByIdAsync(id);
             return StatusCode((int)result.Status, result);
         }
 
@@ -35,7 +34,7 @@ namespace VendingManagement.WebApp.Controllers
         {
             try
             {
-                var result = await _userService.CreateAsync(dataIn);
+                var result = await _customerService.CreateAsync(dataIn);
                 return StatusCode((int)result.Status, result);
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateException)
@@ -49,7 +48,7 @@ namespace VendingManagement.WebApp.Controllers
         {
             try
             {
-                var result = await _userService.UpdateAsync(id, dataIn);
+                var result = await _customerService.UpdateAsync(id, dataIn);
                 return StatusCode((int)result.Status, result);
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateException)
@@ -61,7 +60,7 @@ namespace VendingManagement.WebApp.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _userService.DeleteAsync(id);
+            var result = await _customerService.DeleteAsync(id);
             return StatusCode((int)result.Status, result);
         }
     }

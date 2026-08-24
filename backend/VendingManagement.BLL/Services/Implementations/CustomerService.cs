@@ -7,11 +7,11 @@ using VendingManagement.BLL.Services.Interfaces;
 
 namespace VendingManagement.BLL.Services.Implementations
 {
-    public class UserService : IUserService
+    public class CustomerService : ICustomerService
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IUnitOfWork unitOfWork)
+        public CustomerService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -23,7 +23,7 @@ namespace VendingManagement.BLL.Services.Implementations
             if (pageSize < 1 || pageSize > 100)
                 pageSize = 20;
 
-              var (users, totalCount) = await _unitOfWork.UserRepository.GetPagedWithMeterAsync(pageNumber, pageSize);
+            var (users, totalCount) = await _unitOfWork.CustomerRepository.GetPagedWithMeterAsync(pageNumber, pageSize);
 
             var items = users
                 .Select(u => MapToDataOut(u, u.Meter))
@@ -45,7 +45,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ResponsePackage<UserDataOut>> GetByIdAsync(int id)
         {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            var user = await _unitOfWork.CustomerRepository.GetByIdAsync(id);
 
             if (user == null || user.IsDeleted)
             {
@@ -64,7 +64,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ResponsePackage<UserDataOut>> CreateAsync(UserDataIn dataIn)
         {
-            var user = new User
+            var user = new Customer
             {
                 FullName = dataIn.FullName,
                 Address = dataIn.Address,
@@ -79,7 +79,7 @@ namespace VendingManagement.BLL.Services.Implementations
                 User = user
             };
 
-            await _unitOfWork.UserRepository.AddAsync(user);
+            await _unitOfWork.CustomerRepository.AddAsync(user);
             await _unitOfWork.MeterRepository.AddAsync(meter);
             await _unitOfWork.SaveChangesAsync();
 
@@ -91,7 +91,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ResponsePackage<UserDataOut>> UpdateAsync(int id, UserDataIn dataIn)
         {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            var user = await _unitOfWork.CustomerRepository.GetByIdAsync(id);
 
             if (user == null || user.IsDeleted)
             {
@@ -103,7 +103,7 @@ namespace VendingManagement.BLL.Services.Implementations
             user.FullName = dataIn.FullName;
             user.Address = dataIn.Address;
             user.PhoneNumber = dataIn.PhoneNumber;
-            _unitOfWork.UserRepository.Update(user);
+            _unitOfWork.CustomerRepository.Update(user);
 
             var meter = await _unitOfWork.MeterRepository.GetByUserIdAsync(id);
             if (meter != null)
@@ -122,7 +122,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ResponsePackageNoData> DeleteAsync(int id)
         {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            var user = await _unitOfWork.CustomerRepository.GetByIdAsync(id);
 
             if (user == null || user.IsDeleted)
             {
@@ -139,7 +139,7 @@ namespace VendingManagement.BLL.Services.Implementations
             }
 
             user.IsDeleted = true;
-            _unitOfWork.UserRepository.Update(user);
+            _unitOfWork.CustomerRepository.Update(user);
             await _unitOfWork.SaveChangesAsync();
 
             return new ResponsePackageNoData(
@@ -147,7 +147,7 @@ namespace VendingManagement.BLL.Services.Implementations
                 "User deleted successfully.");
         }
 
-        private static UserDataOut MapToDataOut(User user, Meter? meter)
+        private static UserDataOut MapToDataOut(Customer user, Meter? meter)
         {
             return new UserDataOut
             {

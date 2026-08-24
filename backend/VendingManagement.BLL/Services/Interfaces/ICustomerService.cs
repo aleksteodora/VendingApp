@@ -3,7 +3,7 @@ using VendingManagement.Shared.DTOs;
 
 namespace VendingManagement.BLL.Services.Interfaces
 {
-    public interface IUserService
+    public interface ICustomerService
     {
         Task<ResponsePackage<PagedResult<UserDataOut>>> GetAllAsync(int pageNumber, int pageSize);
         Task<ResponsePackage<UserDataOut>> GetByIdAsync(int id);

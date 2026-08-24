@@ -5,18 +5,19 @@ using VendingManagement.DAL.Repositories.Interfaces;
 
 namespace VendingManagement.DAL.Repositories.Implementations
 {
-    public class UserRepository : Repository<User>, IUserRepository
+    public class CustomerRepository : Repository<Customer>, ICustomerRepository
     {
         private readonly VendingDbContext _context;
 
-        public UserRepository(VendingDbContext context) : base(context)
+        public CustomerRepository(VendingDbContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task<(List<User> Users, int TotalCount)> GetPagedWithMeterAsync(int pageNumber, int pageSize)
+        public async Task<(List<Customer> Users, int TotalCount)> GetPagedWithMeterAsync(int pageNumber, int pageSize)
         {
-            var query = _context.Users.Where(u => !u.IsDeleted);
+            var query = _context.Customers.Where(u => !u.IsDeleted);
+
             var totalCount = await query.CountAsync();
 
             var users = await query
@@ -30,7 +31,7 @@ namespace VendingManagement.DAL.Repositories.Implementations
 
         public async Task<bool> ExistsByApiKeyAsync(string apiKey)
         {
-            return await _context.Users.AnyAsync(u => u.ApiKey == apiKey);
+            return await _context.Customers.AnyAsync(u => u.ApiKey == apiKey);
         }
     }
 }

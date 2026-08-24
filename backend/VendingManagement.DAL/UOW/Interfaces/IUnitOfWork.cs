@@ -4,7 +4,7 @@ namespace VendingManagement.DAL.UOW.Interfaces
 {
     public interface IUnitOfWork
     {
-        IUserRepository UserRepository { get; }
+        ICustomerRepository CustomerRepository { get; }
         IMeterRepository MeterRepository { get; }
         IProcessingFeeRepository ProcessingFeeRepository { get; }
         ITransactionRepository TransactionRepository { get; }

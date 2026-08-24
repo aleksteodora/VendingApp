@@ -35,7 +35,7 @@ namespace VendingManagement.BLL.Services.Implementations
                     "Meter with given serial number was not faund.");
             }
 
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(meter.UserId);
+            var user = await _unitOfWork.CustomerRepository.GetByIdAsync(meter.UserId);
 
             if (user == null)
             {
