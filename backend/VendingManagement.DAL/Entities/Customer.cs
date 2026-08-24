@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace VendingManagement.DAL.Entities
 {
     [Index(nameof(ApiKey), IsUnique = true)]
-    public class User
+    public class Customer
     {
         [Key]
         public int Id { get; set; }
@@ -28,8 +28,8 @@ namespace VendingManagement.DAL.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public Meter Meter { get; set; }
-
         public bool IsDeleted { get; set; } = false;
+
+        public Meter Meter { get; set; }
     }
 }

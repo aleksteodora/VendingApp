@@ -16,8 +16,8 @@ namespace VendingManagement.DAL.Entities
         [Required]
         public int UserId { get; set; }
 
-        [ForeignKey(nameof(UserId))]
-        public User User { get; set; }
+       [ForeignKey(nameof(UserId))]
+        public Customer User { get; set; }
 
         public bool IsDeleted { get; set; } = false;
     }

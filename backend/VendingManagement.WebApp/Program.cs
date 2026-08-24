@@ -34,7 +34,7 @@ builder.Services.AddDbContext<VendingDbContext>(options =>
 builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();
 builder.Services.AddScoped<ISecurityModuleClient, SecurityModuleClient>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddHttpClient();

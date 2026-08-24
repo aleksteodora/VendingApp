@@ -9,7 +9,7 @@ namespace VendingManagement.DAL.UOW.Implementations
     {
         private readonly VendingDbContext _context;
 
-        private IUserRepository? _userRepository;
+        private ICustomerRepository? _customerRepository;
         private IMeterRepository? _meterRepository;
         private IProcessingFeeRepository? _processingFeeRepository;
         private ITransactionRepository? _transactionRepository;
@@ -19,7 +19,7 @@ namespace VendingManagement.DAL.UOW.Implementations
             _context = context;
         }
 
-        public IUserRepository UserRepository => _userRepository ??= new UserRepository(_context);
+        public ICustomerRepository CustomerRepository => _customerRepository ??= new CustomerRepository(_context);
         public IMeterRepository MeterRepository => _meterRepository ??= new MeterRepository(_context);
         public IProcessingFeeRepository ProcessingFeeRepository => _processingFeeRepository ??= new ProcessingFeeRepository(_context);
         public ITransactionRepository TransactionRepository => _transactionRepository ??= new TransactionRepository(_context);

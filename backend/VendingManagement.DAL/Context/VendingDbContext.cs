@@ -9,7 +9,7 @@ namespace VendingManagement.DAL.Context
         {
         }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<Customer> Customers { get; set; }
         public DbSet<Meter> Meters { get; set; }
         public DbSet<ProcessingFee> ProcessingFees { get; set; }
         public DbSet<Transaction> Transactions { get; set; }

@@ -20,7 +20,7 @@ namespace VendingManagement.WebApp.Security
 
             var unitOfWork = context.HttpContext.RequestServices.GetService(typeof(IUnitOfWork)) as IUnitOfWork;
 
-            var userExists = await unitOfWork!.UserRepository.ExistsByApiKeyAsync(extractedApiKey.ToString());
+            var userExists = await unitOfWork!.CustomerRepository.ExistsByApiKeyAsync(extractedApiKey.ToString());
 
             if (!userExists)
             {
