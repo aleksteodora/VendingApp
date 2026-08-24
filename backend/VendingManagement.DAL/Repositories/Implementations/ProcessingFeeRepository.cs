@@ -17,6 +17,7 @@ namespace VendingManagement.DAL.Repositories.Implementations
         public async Task<ProcessingFee?> GetActiveProcessingFeeAsync()
         {
             return await _context.ProcessingFees
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => !x.IsDeleted);
         }
 
