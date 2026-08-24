@@ -8,9 +8,9 @@ namespace VendingManagement.WebApp.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
-        private readonly ILogger<UserController> _logger;
+        private readonly ILogger<CustomerController> _logger;
         private readonly ICustomerService _customerService;
-        public CustomerController(ICustomerService customerService, ILogger<UserController> logger)
+        public CustomerController(ICustomerService customerService, ILogger<CustomerController> logger)
         {
             _logger = logger;
             _customerService = customerService;

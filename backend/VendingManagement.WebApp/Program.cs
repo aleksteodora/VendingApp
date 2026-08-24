@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VendingManagement.DAL.Context;
 using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.BLL.Services.Implementations;
@@ -16,7 +16,8 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File(
         path: "Logs/log-.txt",
         rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 7)
+        retainedFileCountLimit: 7,
+        shared: true)  
     .CreateLogger();
 
 builder.Host.UseSerilog();
