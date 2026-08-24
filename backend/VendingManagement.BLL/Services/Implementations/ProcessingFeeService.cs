@@ -3,16 +3,19 @@ using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.Shared.Common;
 using VendingManagement.Shared.Constants;
+using Microsoft.Extensions.Logging;
 
 namespace VendingManagement.BLL.Services.Implementations
 {
     public class ProcessingFeeService : IProcessingFeeService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<ProcessingFeeService> _logger;
 
-        public ProcessingFeeService(IUnitOfWork unitOfWork)
+        public ProcessingFeeService(IUnitOfWork unitOfWork, ILogger<ProcessingFeeService> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<ResponsePackage<ProcessingFee>> GetActiveFeeAsync()
@@ -21,6 +24,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
             if (activeFee == null)
             {
+                _logger.LogWarning("No active processing fee found in the database.");
                 return new ResponsePackage<ProcessingFee>(
                     ResponseStatus.NotFound,
                     "No active processing fee found.");
@@ -52,6 +56,8 @@ namespace VendingManagement.BLL.Services.Implementations
 
             await _unitOfWork.ProcessingFeeRepository.AddAsync(newFee);
             await _unitOfWork.SaveChangesAsync();
+
+            _logger.LogInformation("Processing fee changed: FixedAmount={FixedAmount}, PercentageRate={PercentageRate}.", fixedAmount, percentageRate);
 
             return new ResponsePackage<ProcessingFee>(
                 newFee,

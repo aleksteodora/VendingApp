@@ -3,11 +3,23 @@ using VendingManagement.DAL.Context;
 using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.BLL.Services.Implementations;
 using VendingManagement.BLL.Clients;
+using Serilog;
 
 using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.DAL.UOW.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: "Logs/log-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddCors(options =>
 {

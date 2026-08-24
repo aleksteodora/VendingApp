@@ -5,6 +5,7 @@ using VendingManagement.DAL.Entities;
 using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.BLL.Clients;
+using Microsoft.Extensions.Logging;
 
 namespace VendingManagement.BLL.Services.Implementations
 {
@@ -13,15 +14,18 @@ namespace VendingManagement.BLL.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProcessingFeeService _processingFeeService;
         private readonly ISecurityModuleClient _securityModuleClient;
+        private readonly ILogger<TransactionService> _logger;
 
         public TransactionService(
             IUnitOfWork unitOfWork,
             IProcessingFeeService processingFeeService,
-            ISecurityModuleClient securityModuleClient)
+            ISecurityModuleClient securityModuleClient,
+            ILogger<TransactionService> logger)
         {
             _unitOfWork = unitOfWork;
             _processingFeeService = processingFeeService;
             _securityModuleClient = securityModuleClient;
+            _logger = logger;
         }
 
         public async Task<ResponsePackage<TokenResponseDataOut>> ProcessTransactionAsync(TokenRequestDataIn dataIn)
@@ -30,15 +34,17 @@ namespace VendingManagement.BLL.Services.Implementations
 
             if (meter == null)
             {
+                _logger.LogWarning("Transaction failed: meter with serial number {MeterSerialNumber} was not found.", dataIn.MeterSerialNumber);
                 return new ResponsePackage<TokenResponseDataOut>(
                     ResponseStatus.NotFound,
-                    "Meter with given serial number was not faund.");
+                    "Meter with given serial number was not found.");
             }
 
             var user = await _unitOfWork.CustomerRepository.GetByIdAsync(meter.UserId);
 
             if (user == null)
             {
+                _logger.LogWarning("Transaction failed: user for meter {MeterSerialNumber} was not found.", dataIn.MeterSerialNumber);
                 return new ResponsePackage<TokenResponseDataOut>(
                     ResponseStatus.NotFound,
                     "User for given meter was not found.");
@@ -78,6 +84,8 @@ namespace VendingManagement.BLL.Services.Implementations
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Transaction {TransactionId} failed while calling Security Module for meter {MeterSerialNumber}.", transaction.Id, dataIn.MeterSerialNumber);
+
                 transaction.Status = TransactionStatus.Failed;
                 _unitOfWork.TransactionRepository.Update(transaction);
                 await _unitOfWork.SaveChangesAsync();
@@ -91,6 +99,8 @@ namespace VendingManagement.BLL.Services.Implementations
             transaction.Status = TransactionStatus.Completed;
             _unitOfWork.TransactionRepository.Update(transaction);
             await _unitOfWork.SaveChangesAsync();
+
+            _logger.LogInformation("Transaction {TransactionId} completed successfully for meter {MeterSerialNumber}, amount {Amount}.", transaction.Id, dataIn.MeterSerialNumber, dataIn.Amount);
 
             var responseData = new TokenResponseDataOut
             {

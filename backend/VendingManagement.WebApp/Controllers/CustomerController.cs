@@ -8,10 +8,11 @@ namespace VendingManagement.WebApp.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
+        private readonly ILogger<UserController> _logger;
         private readonly ICustomerService _customerService;
-
-        public CustomerController(ICustomerService customerService)
+        public CustomerController(ICustomerService customerService, ILogger<UserController> logger)
         {
+            _logger = logger;
             _customerService = customerService;
         }
 
@@ -37,8 +38,9 @@ namespace VendingManagement.WebApp.Controllers
                 var result = await _customerService.CreateAsync(dataIn);
                 return StatusCode((int)result.Status, result);
             }
-            catch (Microsoft.EntityFrameworkCore.DbUpdateException)
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
             {
+                _logger.LogError(ex, "Failed to create customer: duplicate meter serial number {MeterSerialNumber}.", dataIn.MeterSerialNumber);
                 return BadRequest(new { message = "User with this meter serial number already exists." });
             }
         }
@@ -51,8 +53,9 @@ namespace VendingManagement.WebApp.Controllers
                 var result = await _customerService.UpdateAsync(id, dataIn);
                 return StatusCode((int)result.Status, result);
             }
-            catch (Microsoft.EntityFrameworkCore.DbUpdateException)
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
             {
+                _logger.LogError(ex, "Failed to update customer {CustomerId}: duplicate meter serial number {MeterSerialNumber}.", id, dataIn.MeterSerialNumber);
                 return BadRequest(new { message = "User with this meter serial number already exists." });
             }
         }
