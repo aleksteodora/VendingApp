@@ -87,7 +87,6 @@ namespace VendingManagement.BLL.Services.Implementations
                 _logger.LogError(ex, "Transaction {TransactionId} failed while calling Security Module for meter {MeterSerialNumber}.", transaction.Id, dataIn.MeterSerialNumber);
 
                 transaction.Status = TransactionStatus.Failed;
-                _unitOfWork.TransactionRepository.Update(transaction);
                 await _unitOfWork.SaveChangesAsync();
 
                 return new ResponsePackage<TokenResponseDataOut>(
@@ -97,7 +96,6 @@ namespace VendingManagement.BLL.Services.Implementations
 
             transaction.Token = token;
             transaction.Status = TransactionStatus.Completed;
-            _unitOfWork.TransactionRepository.Update(transaction);
             await _unitOfWork.SaveChangesAsync();
 
             _logger.LogInformation("Transaction {TransactionId} completed successfully for meter {MeterSerialNumber}, amount {Amount}.", transaction.Id, dataIn.MeterSerialNumber, dataIn.Amount);
