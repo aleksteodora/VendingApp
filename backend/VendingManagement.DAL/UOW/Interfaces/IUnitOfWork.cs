@@ -8,6 +8,7 @@ namespace VendingManagement.DAL.UOW.Interfaces
         IMeterRepository MeterRepository { get; }
         IProcessingFeeRepository ProcessingFeeRepository { get; }
         ITransactionRepository TransactionRepository { get; }
+        IAdminRepository AdminRepository { get; }
 
         Task<int> SaveChangesAsync();
     }

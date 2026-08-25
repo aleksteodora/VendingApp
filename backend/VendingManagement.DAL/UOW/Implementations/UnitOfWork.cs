@@ -13,6 +13,7 @@ namespace VendingManagement.DAL.UOW.Implementations
         private IMeterRepository? _meterRepository;
         private IProcessingFeeRepository? _processingFeeRepository;
         private ITransactionRepository? _transactionRepository;
+        private IAdminRepository? _adminRepository;
 
         public UnitOfWork(VendingDbContext context)
         {
@@ -23,6 +24,7 @@ namespace VendingManagement.DAL.UOW.Implementations
         public IMeterRepository MeterRepository => _meterRepository ??= new MeterRepository(_context);
         public IProcessingFeeRepository ProcessingFeeRepository => _processingFeeRepository ??= new ProcessingFeeRepository(_context);
         public ITransactionRepository TransactionRepository => _transactionRepository ??= new TransactionRepository(_context);
+        public IAdminRepository AdminRepository => _adminRepository ??= new AdminRepository(_context);
 
         public async Task<int> SaveChangesAsync()
         {

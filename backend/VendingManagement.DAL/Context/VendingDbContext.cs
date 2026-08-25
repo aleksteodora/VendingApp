@@ -13,6 +13,7 @@ namespace VendingManagement.DAL.Context
         public DbSet<Meter> Meters { get; set; }
         public DbSet<ProcessingFee> ProcessingFees { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Admin> Admins { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
