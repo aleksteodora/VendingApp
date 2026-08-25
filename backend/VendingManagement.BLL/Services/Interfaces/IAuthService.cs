@@ -5,6 +5,6 @@ namespace VendingManagement.BLL.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<ResponsePackage<AdminDataOut>> LoginAsync(AdminLoginDataIn dataIn);
+        Task<ResponsePackage<AdminLoginResponseDataOut>> LoginAsync(AdminLoginDataIn dataIn);
     }
 }

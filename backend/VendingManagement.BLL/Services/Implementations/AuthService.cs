@@ -1,4 +1,9 @@
-﻿using VendingManagement.DAL.UOW.Interfaces;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.Shared.DTOs;
 using VendingManagement.Shared.Common;
 using VendingManagement.Shared.Constants;
@@ -9,19 +14,21 @@ namespace VendingManagement.BLL.Services.Implementations
     public class AuthService : IAuthService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IConfiguration _configuration;
 
-        public AuthService(IUnitOfWork unitOfWork)
+        public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
+            _configuration = configuration;
         }
 
-        public async Task<ResponsePackage<AdminDataOut>> LoginAsync(AdminLoginDataIn dataIn)
+        public async Task<ResponsePackage<AdminLoginResponseDataOut>> LoginAsync(AdminLoginDataIn dataIn)
         {
             var admin = await _unitOfWork.AdminRepository.GetByEmailAsync(dataIn.Email);
 
             if (admin == null)
             {
-                return new ResponsePackage<AdminDataOut>(
+                return new ResponsePackage<AdminLoginResponseDataOut>(
                     ResponseStatus.Unauthorized,
                     "Invalid email or password.");
             }
@@ -30,23 +37,56 @@ namespace VendingManagement.BLL.Services.Implementations
 
             if (!passwordValid)
             {
-                return new ResponsePackage<AdminDataOut>(
+                return new ResponsePackage<AdminLoginResponseDataOut>(
                     ResponseStatus.Unauthorized,
                     "Invalid email or password.");
             }
 
-            var result = new AdminDataOut
+            var token = GenerateJwtToken(admin.Id, admin.Email, admin.IsSuperAdmin);
+
+            var result = new AdminLoginResponseDataOut
             {
-                Id = admin.Id,
-                Email = admin.Email,
-                FullName = admin.FullName,
-                IsSuperAdmin = admin.IsSuperAdmin
+                Token = token,
+                Admin = new AdminDataOut
+                {
+                    Id = admin.Id,
+                    Email = admin.Email,
+                    FullName = admin.FullName,
+                    IsSuperAdmin = admin.IsSuperAdmin
+                }
             };
 
-            return new ResponsePackage<AdminDataOut>(
+            return new ResponsePackage<AdminLoginResponseDataOut>(
                 result,
                 ResponseStatus.OK,
                 "Login successful.");
+        }
+
+        private string GenerateJwtToken(int adminId, string email, bool isSuperAdmin)
+        {
+            var jwtSettings = _configuration.GetSection("Jwt");
+            var secret = _configuration["Jwt:Secret"];
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, adminId.ToString()),
+                new Claim(ClaimTypes.Email, email),
+                new Claim("IsSuperAdmin", isSuperAdmin.ToString())
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var expiryMinutes = int.Parse(jwtSettings["ExpiryMinutes"] ?? "60");
+
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
