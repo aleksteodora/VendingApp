@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VendingManagement.Shared.DTOs;
 using VendingManagement.BLL.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace VendingManagement.WebApp.Controllers
 {
     [Route("api/processing-fee")]
     [ApiController]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class ProcessingFeeController : ControllerBase
     {
         private readonly IProcessingFeeService _processingFeeService;
@@ -26,6 +28,13 @@ namespace VendingManagement.WebApp.Controllers
         public async Task<IActionResult> Change([FromBody] ProcessingFeeDataIn dataIn)
         {
             var result = await _processingFeeService.ChangeFeeAsync(dataIn.FixedAmount, dataIn.PercentageRate);
+            return StatusCode((int)result.Status, result);
+        }
+
+        [HttpGet("history")]
+        public async Task<IActionResult> GetHistory()
+        {
+            var result = await _processingFeeService.GetHistoryAsync();
             return StatusCode((int)result.Status, result);
         }
     }

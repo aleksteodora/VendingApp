@@ -1,0 +1,81 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Admins</h1>
+  </header>
+
+  <div class="layout">
+    <section class="panel form-panel">
+      <h2>{{ isEditing ? 'Edit admin' : 'New admin' }}</h2>
+
+      <div class="alert alert-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+      <div class="alert alert-success" *ngIf="successMessage">{{ successMessage }}</div>
+
+      <form [formGroup]="adminForm" (ngSubmit)="onSubmit()">
+        <div class="field">
+          <label for="fullName">Full name</label>
+          <input id="fullName" type="text" formControlName="fullName" placeholder="Ana Anić" />
+          <span class="field-error" *ngIf="fullName?.invalid && fullName?.touched">
+            <span *ngIf="fullName?.errors?.['required']">Full name is required.</span>
+            <span *ngIf="fullName?.errors?.['minlength']">Full name must be at least 2 characters.</span>
+          </span>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" formControlName="email" placeholder="admin@vending.com" />
+          <span class="field-error" *ngIf="email?.invalid && email?.touched">
+            <span *ngIf="email?.errors?.['required']">Email is required.</span>
+            <span *ngIf="email?.errors?.['email']">Invalid email format.</span>
+          </span>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" formControlName="password" placeholder="••••••••" />
+          <span class="field-error" *ngIf="password?.invalid && password?.touched">
+            <span *ngIf="password?.errors?.['required']">Password is required.</span>
+            <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters.</span>
+          </span>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary">{{ isEditing ? 'Save changes' : 'Add admin' }}</button>
+          <button type="button" class="btn-ghost" *ngIf="isEditing" (click)="resetForm()">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel list-panel">
+      <div class="list-header">
+        <h2>All admins</h2>
+        <span class="count">{{ admins.length }}</span>
+      </div>
+
+      <table *ngIf="admins.length > 0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Full name</th>
+            <th>Email</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let admin of admins">
+            <td class="id-cell">{{ admin.id }}</td>
+            <td class="name-cell">{{ admin.fullName }}</td>
+            <td>{{ admin.email }}</td>
+            <td class="actions-cell">
+              <button class="btn-edit" (click)="editAdmin(admin)">Edit</button>
+              <button class="btn-delete" (click)="deleteAdmin(admin.id!)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="empty-state" *ngIf="admins.length === 0">
+        No admins added yet.
+      </div>
+    </section>
+  </div>
+</div>

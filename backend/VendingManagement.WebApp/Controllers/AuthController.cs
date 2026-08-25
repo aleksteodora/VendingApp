@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VendingManagement.Shared.DTOs;
 using VendingManagement.BLL.Services.Interfaces;
 
 namespace VendingManagement.WebApp.Controllers
@@ -14,6 +15,11 @@ namespace VendingManagement.WebApp.Controllers
             _authService = authService;
         }
 
-        [HttpGet]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] AdminLoginDataIn dataIn)
+        {
+            var result = await _authService.LoginAsync(dataIn);
+            return StatusCode((int)result.Status, result);
+        }
     }
 }

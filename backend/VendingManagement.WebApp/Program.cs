@@ -7,6 +7,9 @@ using Serilog;
 
 using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.DAL.UOW.Implementations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +20,7 @@ Log.Logger = new LoggerConfiguration()
         path: "Logs/log-.txt",
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 7,
-        shared: true)  
+        shared: true)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -36,7 +39,12 @@ builder.WebHost.UseUrls("http://localhost:5245", "https://localhost:7142");
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -48,10 +56,34 @@ builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();
 builder.Services.AddScoped<ISecurityModuleClient, SecurityModuleClient>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-
 builder.Services.AddHttpClient();
+builder.Services.AddAuthorization();
+
+// JWT authentication
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var jwtSecret = builder.Configuration["Jwt:Secret"];
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+    };
+});
 
 var app = builder.Build();
 
@@ -65,7 +97,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using VendingManagement.Shared.Constants;
 
 namespace VendingManagement.DAL.Entities
 {
@@ -18,7 +19,7 @@ namespace VendingManagement.DAL.Entities
         [MaxLength(200)]
         public string FullName { get; set; }
 
-        public bool IsSuperAdmin { get; set; } = false;
+        public AdminRole Role { get; set; } = AdminRole.Admin;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
