@@ -14,17 +14,26 @@ namespace VendingManagement.DAL.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<(List<Customer> Users, int TotalCount)> GetPagedWithMeterAsync(int pageNumber, int pageSize)
+        public async Task<(List<CustomerListItem> Users, int TotalCount)> GetPagedWithMeterAsync(int pageNumber, int pageSize)
         {
             var query = _context.Customers.AsNoTracking().Where(u => !u.IsDeleted);
 
             var totalCount = await query.CountAsync();
 
             var users = await query
-                .Include(u => u.Meter)
+                .OrderBy(u => u.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Select(u => new CustomerListItem
+                {
+                    Id = u.Id,
+                    FullName = u.FullName,
+                    Address = u.Address,
+                    PhoneNumber = u.PhoneNumber,
+                    MeterSerialNumber = u.Meter != null ? u.Meter.MeterSerialNumber : null
+                })
                 .ToListAsync();
+
             return (users, totalCount);
         }
 

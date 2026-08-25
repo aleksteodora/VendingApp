@@ -43,7 +43,6 @@ namespace VendingManagement.BLL.Services.Implementations
             foreach (var fee in currentActiveFees)
             {
                 fee.IsDeleted = true;
-                _unitOfWork.ProcessingFeeRepository.Update(fee);
             }
 
             var newFee = new ProcessingFee

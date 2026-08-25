@@ -4,6 +4,7 @@ using VendingManagement.Shared.DTOs;
 using VendingManagement.Shared.Common;
 using VendingManagement.Shared.Constants;
 using VendingManagement.BLL.Services.Interfaces;
+using VendingManagement.DAL.Repositories;
 
 namespace VendingManagement.BLL.Services.Implementations
 {
@@ -26,7 +27,14 @@ namespace VendingManagement.BLL.Services.Implementations
             var (users, totalCount) = await _unitOfWork.CustomerRepository.GetPagedWithMeterAsync(pageNumber, pageSize);
 
             var items = users
-                .Select(u => MapToDataOut(u))
+                .Select(u => new UserDataOut
+                {
+                    Id = u.Id,
+                    FullName = u.FullName,
+                    Address = u.Address,
+                    PhoneNumber = u.PhoneNumber,
+                    MeterSerialNumber = u.MeterSerialNumber
+                })
                 .ToList();
 
             var pagedResult = new PagedResult<UserDataOut>
