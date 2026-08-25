@@ -69,8 +69,8 @@ namespace VendingManagement.BLL.Services.Implementations
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, adminId.ToString()),
-                new Claim(ClaimTypes.Email, email),
+                new Claim("AdminId", adminId.ToString()),
+                new Claim("Email", email),
                 new Claim("IsSuperAdmin", isSuperAdmin.ToString())
             };
 

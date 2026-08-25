@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VendingManagement.Shared.DTOs;
 using VendingManagement.BLL.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace VendingManagement.WebApp.Controllers
 {
     [Route("api/processing-fee")]
     [ApiController]
+    [Authorize]
     public class ProcessingFeeController : ControllerBase
     {
         private readonly IProcessingFeeService _processingFeeService;

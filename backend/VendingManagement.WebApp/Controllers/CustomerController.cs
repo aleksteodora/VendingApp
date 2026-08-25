@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VendingManagement.Shared.DTOs;
 using VendingManagement.BLL.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace VendingManagement.WebApp.Controllers
 {
     [Route("api/user")]
     [ApiController]
+    [Authorize]
     public class CustomerController : ControllerBase
     {
         private readonly ILogger<CustomerController> _logger;
