@@ -7,7 +7,7 @@ namespace VendingManagement.WebApp.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class CustomerController : ControllerBase
     {
         private readonly ILogger<CustomerController> _logger;

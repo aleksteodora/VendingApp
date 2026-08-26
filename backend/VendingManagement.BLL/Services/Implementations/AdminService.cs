@@ -19,7 +19,7 @@ namespace VendingManagement.BLL.Services.Implementations
         public async Task<ResponsePackage<List<AdminDataOut>>> GetAllAsync()
         {
             var admins = await _unitOfWork.AdminRepository.GetAllAsync();
-            var items = admins.Where(a => !a.IsSuperAdmin).Select(MapToDataOut).ToList();
+            var items = admins.Where(a => a.Role != AdminRole.SuperAdmin).Select(MapToDataOut).ToList();
 
             return new ResponsePackage<List<AdminDataOut>>(
                 items,
@@ -59,7 +59,7 @@ namespace VendingManagement.BLL.Services.Implementations
                 Email = dataIn.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dataIn.Password),
                 FullName = dataIn.FullName,
-                IsSuperAdmin = false,
+                Role = AdminRole.Admin,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -106,7 +106,7 @@ namespace VendingManagement.BLL.Services.Implementations
                     "Admin not found.");
             }
 
-            if (admin.IsSuperAdmin)
+            if (admin.Role == AdminRole.SuperAdmin)
             {
                 return new ResponsePackageNoData(
                     ResponseStatus.BadRequest,
@@ -128,7 +128,7 @@ namespace VendingManagement.BLL.Services.Implementations
                 Id = admin.Id,
                 Email = admin.Email,
                 FullName = admin.FullName,
-                IsSuperAdmin = admin.IsSuperAdmin
+                Role = admin.Role
             };
         }
     }

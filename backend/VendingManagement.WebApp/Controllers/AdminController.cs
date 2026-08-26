@@ -7,7 +7,7 @@ namespace VendingManagement.WebApp.Controllers
 {
     [Route("api/admin")]
     [ApiController]
-    [Authorize(Policy = "SuperAdminOnly")]
+    [Authorize(Roles = "SuperAdmin")]
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;

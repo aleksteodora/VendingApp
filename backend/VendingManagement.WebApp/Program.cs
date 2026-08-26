@@ -56,6 +56,7 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddHttpClient();
+builder.Services.AddAuthorization();
 
 // JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -78,12 +79,6 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
     };
-});
-
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("SuperAdminOnly", policy =>
-        policy.RequireClaim("IsSuperAdmin", "True"));
 });
 
 var app = builder.Build();

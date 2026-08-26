@@ -7,7 +7,7 @@ namespace VendingManagement.WebApp.Controllers
 {
     [Route("api/processing-fee")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class ProcessingFeeController : ControllerBase
     {
         private readonly IProcessingFeeService _processingFeeService;

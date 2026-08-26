@@ -8,6 +8,7 @@ using VendingManagement.Shared.DTOs;
 using VendingManagement.Shared.Common;
 using VendingManagement.Shared.Constants;
 using VendingManagement.BLL.Services.Interfaces;
+using System.Data;
 
 namespace VendingManagement.BLL.Services.Implementations
 {
@@ -42,7 +43,7 @@ namespace VendingManagement.BLL.Services.Implementations
                     "Invalid email or password.");
             }
 
-            var token = GenerateJwtToken(admin.Id, admin.Email, admin.IsSuperAdmin);
+            var token = GenerateJwtToken(admin.Id, admin.Email, admin.Role);
 
             var result = new AdminLoginResponseDataOut
             {
@@ -52,7 +53,7 @@ namespace VendingManagement.BLL.Services.Implementations
                     Id = admin.Id,
                     Email = admin.Email,
                     FullName = admin.FullName,
-                    IsSuperAdmin = admin.IsSuperAdmin
+                    Role = admin.Role
                 }
             };
 
@@ -62,19 +63,19 @@ namespace VendingManagement.BLL.Services.Implementations
                 "Login successful.");
         }
 
-        private string GenerateJwtToken(int adminId, string email, bool isSuperAdmin)
+        private string GenerateJwtToken(int adminId, string email, AdminRole role)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
-            var secret = _configuration["Jwt:Secret"];
+            //var secret = _configuration["Jwt:Secret"];
 
             var claims = new List<Claim>
             {
                 new Claim("AdminId", adminId.ToString()),
                 new Claim("Email", email),
-                new Claim("IsSuperAdmin", isSuperAdmin.ToString())
+                new Claim(ClaimTypes.Role, role.ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var expiryMinutes = int.Parse(jwtSettings["ExpiryMinutes"] ?? "60");
