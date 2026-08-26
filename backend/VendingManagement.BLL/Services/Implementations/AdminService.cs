@@ -46,6 +46,13 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ResponsePackage<AdminDataOut>> CreateAsync(AdminDataIn dataIn)
         {
+            if (string.IsNullOrWhiteSpace(dataIn.Password))
+            {
+                return new ResponsePackage<AdminDataOut>(
+                    ResponseStatus.BadRequest,
+                    "Password is required when creating a new admin.");
+            }
+
             var existing = await _unitOfWork.AdminRepository.GetByEmailAsync(dataIn.Email);
             if (existing != null)
             {
@@ -85,7 +92,11 @@ namespace VendingManagement.BLL.Services.Implementations
 
             admin.Email = dataIn.Email;
             admin.FullName = dataIn.FullName;
-            admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dataIn.Password);
+
+            if (!string.IsNullOrWhiteSpace(dataIn.Password))
+            {
+                admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dataIn.Password);
+            }
 
             await _unitOfWork.SaveChangesAsync();
 

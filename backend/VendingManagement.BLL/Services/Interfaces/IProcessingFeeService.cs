@@ -7,5 +7,6 @@ namespace VendingManagement.BLL.Services.Interfaces
     {
         Task<ResponsePackage<ProcessingFee>> GetActiveFeeAsync();
         Task<ResponsePackage<ProcessingFee>> ChangeFeeAsync(decimal fixedAmount, decimal percentageRate);
+        Task<ResponsePackage<List<ProcessingFee>>> GetHistoryAsync();
     }
 }

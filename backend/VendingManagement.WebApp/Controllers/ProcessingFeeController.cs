@@ -30,5 +30,12 @@ namespace VendingManagement.WebApp.Controllers
             var result = await _processingFeeService.ChangeFeeAsync(dataIn.FixedAmount, dataIn.PercentageRate);
             return StatusCode((int)result.Status, result);
         }
+
+        [HttpGet("history")]
+        public async Task<IActionResult> GetHistory()
+        {
+            var result = await _processingFeeService.GetHistoryAsync();
+            return StatusCode((int)result.Status, result);
+        }
     }
 }

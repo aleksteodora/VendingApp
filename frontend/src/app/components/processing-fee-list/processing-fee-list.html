@@ -1,0 +1,80 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Processing Fee</h1>
+  </header>
+
+  <section class="panel current-fee-panel">
+    <h2>Current Active Fee</h2>
+    <div class="current-fee" *ngIf="activeFee">
+      <div class="fee-stat">
+        <span class="fee-label">Fixed Amount</span>
+        <span class="fee-value">{{ activeFee.fixedAmount }}</span>
+      </div>
+      <div class="fee-stat">
+        <span class="fee-label">Percentage Rate</span>
+        <span class="fee-value">{{ activeFee.percentageRate * 100 }}%</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <section class="panel form-panel">
+      <h2>Update Fee</h2>
+
+      <div class="alert alert-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+      <div class="alert alert-success" *ngIf="successMessage">{{ successMessage }}</div>
+
+      <form (ngSubmit)="onSubmit()">
+        <div class="field">
+          <label for="fixedAmount">Fixed Amount</label>
+          <input id="fixedAmount" type="number" step="0.01" [(ngModel)]="fixedAmount" name="fixedAmount" placeholder="15.00" />
+        </div>
+
+        <div class="field">
+          <label for="percentageRate">Percentage Rate (0-1)</label>
+          <input id="percentageRate" type="number" step="0.01" [(ngModel)]="percentageRate" name="percentageRate" placeholder="0.03" />
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary">Update Fee</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel list-panel">
+      <div class="list-header">
+        <h2>Fee History</h2>
+        <span class="count">{{ history.length }}</span>
+      </div>
+
+      <table *ngIf="history.length > 0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Fixed Amount</th>
+            <th>Percentage Rate</th>
+            <th>Status</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let fee of history">
+            <td class="id-cell">{{ fee.id }}</td>
+            <td>{{ fee.fixedAmount }}</td>
+            <td>{{ fee.percentageRate * 100 }}%</td>
+            <td>
+              <span class="status-badge" [class.status-active]="!fee.isDeleted">
+                {{ fee.isDeleted ? 'Inactive' : 'Active' }}
+              </span>
+            </td>
+            <td class="meter-cell">{{ fee.createdAt | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="empty-state" *ngIf="history.length === 0">
+        No fee history yet.
+      </div>
+    </section>
+  </div>
+</div>

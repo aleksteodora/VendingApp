@@ -63,5 +63,17 @@ namespace VendingManagement.BLL.Services.Implementations
                 ResponseStatus.OK,
                 "Processing fee changed successfully.");
         }
+
+        public async Task<ResponsePackage<List<ProcessingFee>>> GetHistoryAsync()
+        {
+            var allFees = await _unitOfWork.ProcessingFeeRepository.GetAllAsync();
+
+            var ordered = allFees.OrderByDescending(f => f.CreatedAt).ToList();
+
+            return new ResponsePackage<List<ProcessingFee>>(
+                ordered,
+                ResponseStatus.OK,
+                "Processing fee history retrieved successfully.");
+        }
     }
 }

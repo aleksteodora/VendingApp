@@ -63,7 +63,10 @@ export class AdminList implements OnInit {
       return;
     }
 
-    const formValue = this.adminForm.value;
+    const formValue = { ...this.adminForm.value };
+    if (this.isEditing && !formValue.password) {
+      delete formValue.password;
+    }
 
     if (this.isEditing && this.editingId) {
       this.adminService.update(this.editingId, formValue).subscribe({
@@ -106,17 +109,22 @@ export class AdminList implements OnInit {
   }
 
   editAdmin(admin: AdminManagementModel): void {
-    this.isEditing = true;
-    this.editingId = admin.id ?? null;
-    this.adminForm.patchValue({
-      fullName: admin.fullName,
-      email: admin.email,
-      password: ''
-    });
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.cdr.detectChanges();
-  }
+  this.isEditing = true;
+  this.editingId = admin.id ?? null;
+
+  this.adminForm.get('password')?.clearValidators();
+  this.adminForm.get('password')?.setValidators([Validators.minLength(6)]);
+  this.adminForm.get('password')?.updateValueAndValidity();
+
+  this.adminForm.patchValue({
+    fullName: admin.fullName,
+    email: admin.email,
+    password: ''
+  });
+  this.errorMessage = '';
+  this.successMessage = '';
+  this.cdr.detectChanges();
+}
 
   deleteAdmin(id: number): void {
     if (confirm('Are you sure you want to delete this admin?')) {
@@ -132,8 +140,12 @@ export class AdminList implements OnInit {
   }
 
   resetForm(): void {
-    this.adminForm.reset();
-    this.isEditing = false;
-    this.editingId = null;
-  }
+  this.adminForm.get('password')?.clearValidators();
+  this.adminForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+  this.adminForm.get('password')?.updateValueAndValidity();
+
+  this.adminForm.reset();
+  this.isEditing = false;
+  this.editingId = null;
+}
 }
