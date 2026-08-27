@@ -61,4 +61,13 @@ export class AuthService {
   isSuperAdmin(): boolean {
     return this.getAdmin()?.role === 'SuperAdmin';
   }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+  return this.http
+    .post<ResponsePackage<void>>('https://localhost:7142/api/admin/change-password', {
+      currentPassword,
+      newPassword
+    })
+    .pipe(map(() => undefined));
+}
 }

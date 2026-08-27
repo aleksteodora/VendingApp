@@ -10,10 +10,12 @@ namespace VendingManagement.BLL.Services.Implementations
     public class AdminService : IAdminService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPasswordService _passwordService;
 
-        public AdminService(IUnitOfWork unitOfWork)
+        public AdminService(IUnitOfWork unitOfWork, IPasswordService passwordService)
         {
             _unitOfWork = unitOfWork;
+            _passwordService = passwordService;
         }
 
         public async Task<ResponsePackage<List<AdminDataOut>>> GetAllAsync()
@@ -64,7 +66,7 @@ namespace VendingManagement.BLL.Services.Implementations
             var admin = new Admin
             {
                 Email = dataIn.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dataIn.Password),
+                PasswordHash = _passwordService.HashPassword(dataIn.Password),
                 FullName = dataIn.FullName,
                 Role = AdminRole.Admin,
                 CreatedAt = DateTime.UtcNow
@@ -95,7 +97,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
             if (!string.IsNullOrWhiteSpace(dataIn.Password))
             {
-                admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dataIn.Password);
+                admin.PasswordHash = _passwordService.HashPassword(dataIn.Password);
             }
 
             await _unitOfWork.SaveChangesAsync();
@@ -130,6 +132,35 @@ namespace VendingManagement.BLL.Services.Implementations
             return new ResponsePackageNoData(
                 ResponseStatus.OK,
                 "Admin deleted successfully.");
+        }
+
+        public async Task<ResponsePackageNoData> ChangePasswordAsync(int adminId, ChangePasswordDataIn dataIn)
+        {
+            var admin = await _unitOfWork.AdminRepository.GetByIdAsync(adminId);
+
+            if (admin == null || admin.IsDeleted)
+            {
+                return new ResponsePackageNoData(
+                    ResponseStatus.NotFound,
+                    "Admin not found.");
+            }
+
+            bool currentPasswordValid = _passwordService.VerifyPassword(dataIn.CurrentPassword, admin.PasswordHash);
+
+            if (!currentPasswordValid)
+            {
+                return new ResponsePackageNoData(
+                    ResponseStatus.BadRequest,
+                    "Current password is incorrect.");
+            }
+
+            admin.PasswordHash = _passwordService.HashPassword(dataIn.NewPassword);
+            _unitOfWork.AdminRepository.Update(admin);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new ResponsePackageNoData(
+                ResponseStatus.OK,
+                "Password changed successfully.");
         }
 
         private static AdminDataOut MapToDataOut(Admin admin)

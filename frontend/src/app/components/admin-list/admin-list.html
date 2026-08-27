@@ -30,13 +30,18 @@
         </div>
 
         <div class="field">
-          <label for="password">Password</label>
-          <input id="password" type="password" formControlName="password" placeholder="••••••••" />
-          <span class="field-error" *ngIf="password?.invalid && password?.touched">
-            <span *ngIf="password?.errors?.['required']">Password is required.</span>
-            <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters.</span>
-          </span>
-        </div>
+  <label for="password">Password</label>
+  <div class="password-wrapper">
+    <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" placeholder="••••••••" />
+    <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
+      {{ showPassword ? 'Hide' : 'Show' }}
+    </button>
+  </div>
+  <span class="field-error" *ngIf="password?.invalid && password?.touched">
+    <span *ngIf="password?.errors?.['required']">Password is required.</span>
+    <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters.</span>
+  </span>
+</div>
 
         <div class="actions">
           <button type="submit" class="btn-primary">{{ isEditing ? 'Save changes' : 'Add admin' }}</button>

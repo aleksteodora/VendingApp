@@ -3,6 +3,7 @@ import { Login } from './components/login/login';
 import { UserList } from './components/user-list/user-list';
 import { AdminList } from './components/admin-list/admin-list';
 import { ProcessingFeeList } from './components/processing-fee-list/processing-fee-list';
+import { ChangePassword } from './components/change-password/change-password';
 import { AdminShell } from './components/admin-shell/admin-shell';
 import { authGuard } from './guards/auth-guard';
 
@@ -16,6 +17,7 @@ export const routes: Routes = [
       { path: 'users', component: UserList },
       { path: 'processing-fee', component: ProcessingFeeList },
       { path: 'admins', component: AdminList },
+      { path: 'change-password', component: ChangePassword },
       { path: '', redirectTo: 'users', pathMatch: 'full' }
     ]
   },

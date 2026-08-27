@@ -16,11 +16,13 @@ namespace VendingManagement.BLL.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+        private readonly IPasswordService _passwordService;
 
-        public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration, IPasswordService passwordService)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _passwordService = passwordService;
         }
 
         public async Task<ResponsePackage<AdminLoginResponseDataOut>> LoginAsync(AdminLoginDataIn dataIn)
@@ -34,7 +36,7 @@ namespace VendingManagement.BLL.Services.Implementations
                     "Invalid email or password.");
             }
 
-            bool passwordValid = BCrypt.Net.BCrypt.Verify(dataIn.Password, admin.PasswordHash);
+            bool passwordValid = _passwordService.VerifyPassword(dataIn.Password, admin.PasswordHash);
 
             if (!passwordValid)
             {

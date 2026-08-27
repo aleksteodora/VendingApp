@@ -61,6 +61,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddHttpClient();
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 // JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");

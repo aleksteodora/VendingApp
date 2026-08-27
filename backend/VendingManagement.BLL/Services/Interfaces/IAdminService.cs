@@ -10,5 +10,6 @@ namespace VendingManagement.BLL.Services.Interfaces
         Task<ResponsePackage<AdminDataOut>> CreateAsync(AdminDataIn dataIn);
         Task<ResponsePackage<AdminDataOut>> UpdateAsync(int id, AdminDataIn dataIn);
         Task<ResponsePackageNoData> DeleteAsync(int id);
+        Task<ResponsePackageNoData> ChangePasswordAsync(int adminId, ChangePasswordDataIn dataIn);
     }
 }

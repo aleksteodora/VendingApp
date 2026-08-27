@@ -15,6 +15,7 @@ export class AdminList implements OnInit {
   editingId: number | null = null;
   errorMessage = '';
   successMessage = '';
+  showPassword = false;
 
   adminForm: FormGroup;
 
@@ -51,6 +52,10 @@ export class AdminList implements OnInit {
   get fullName() { return this.adminForm.get('fullName'); }
   get email() { return this.adminForm.get('email'); }
   get password() { return this.adminForm.get('password'); }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 
   onSubmit(): void {
     this.errorMessage = '';
