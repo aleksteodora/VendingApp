@@ -19,7 +19,7 @@ namespace VendingManagement.BLL.Services.Implementations
         public async Task<ResponsePackage<List<AdminDataOut>>> GetAllAsync()
         {
             var admins = await _unitOfWork.AdminRepository.GetAllAsync();
-            var items = admins.Where(a => a.Role != AdminRole.SuperAdmin).Select(MapToDataOut).ToList();
+            var items = admins.Where(a => a.Role != AdminRole.SuperAdmin && !a.IsDeleted).Select(MapToDataOut).ToList();
 
             return new ResponsePackage<List<AdminDataOut>>(
                 items,
@@ -31,7 +31,7 @@ namespace VendingManagement.BLL.Services.Implementations
         {
             var admin = await _unitOfWork.AdminRepository.GetByIdAsync(id);
 
-            if (admin == null)
+            if (admin == null || admin.IsDeleted)
             {
                 return new ResponsePackage<AdminDataOut>(
                     ResponseStatus.NotFound,
@@ -54,7 +54,7 @@ namespace VendingManagement.BLL.Services.Implementations
             }
 
             var existing = await _unitOfWork.AdminRepository.GetByEmailAsync(dataIn.Email);
-            if (existing != null)
+            if (existing != null && !existing.IsDeleted)
             {
                 return new ResponsePackage<AdminDataOut>(
                     ResponseStatus.BadRequest,
@@ -83,7 +83,7 @@ namespace VendingManagement.BLL.Services.Implementations
         {
             var admin = await _unitOfWork.AdminRepository.GetByIdAsync(id);
 
-            if (admin == null)
+            if (admin == null || admin.IsDeleted)
             {
                 return new ResponsePackage<AdminDataOut>(
                     ResponseStatus.NotFound,
@@ -110,7 +110,7 @@ namespace VendingManagement.BLL.Services.Implementations
         {
             var admin = await _unitOfWork.AdminRepository.GetByIdAsync(id);
 
-            if (admin == null)
+            if (admin == null || admin.IsDeleted)
             {
                 return new ResponsePackageNoData(
                     ResponseStatus.NotFound,
@@ -124,7 +124,7 @@ namespace VendingManagement.BLL.Services.Implementations
                     "The super admin cannot be deleted.");
             }
 
-            _unitOfWork.AdminRepository.Remove(admin);
+            admin.IsDeleted = true;
             await _unitOfWork.SaveChangesAsync();
 
             return new ResponsePackageNoData(
