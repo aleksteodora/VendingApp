@@ -54,6 +54,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<VendingDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("VendingConnection")));
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
+
 builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();
 builder.Services.AddScoped<ISecurityModuleClient, SecurityModuleClient>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
@@ -88,9 +91,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
     };
 });
-
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect("localhost:6379"));
 
 var app = builder.Build();
 

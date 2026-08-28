@@ -26,18 +26,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
         public async Task<ResponsePackage<ProcessingFee>> GetActiveFeeAsync()
         {
-            var cached = await _cacheService.GetAsync<ProcessingFee>(ActiveFeeCacheKey);
-
-            if (cached != null)
-            {
-                _logger.LogInformation("Active processing fee retrieved from cache.");
-                return new ResponsePackage<ProcessingFee>(
-                    cached,
-                    ResponseStatus.OK,
-                    "Active processing fee retrieved successfully from cache.");
-            }
-
-            var activeFee = await _unitOfWork.ProcessingFeeRepository.GetActiveProcessingFeeAsync();
+            var activeFee = await _cacheService.GetAsync(ActiveFeeCacheKey, () => _unitOfWork.ProcessingFeeRepository.GetActiveProcessingFeeAsync(), CacheDuration);
 
             if (activeFee == null)
             {
@@ -47,13 +36,11 @@ namespace VendingManagement.BLL.Services.Implementations
                     "No active processing fee found in the data.");
             }
 
-            await _cacheService.SetAsync(ActiveFeeCacheKey, activeFee, CacheDuration);
-            _logger.LogInformation("Active processing fee retrieved from database and cached.");
-
+            _logger.LogInformation("Active processing fee retrieved (cache).");
             return new ResponsePackage<ProcessingFee>(
                 activeFee,
                 ResponseStatus.OK,
-                "Active processing fee retrieved successfully from database.");
+                "Active processing fee retrieved successfully.");
         }
 
         public async Task<ResponsePackage<ProcessingFee>> ChangeFeeAsync(decimal fixedAmount, decimal percentageRate)

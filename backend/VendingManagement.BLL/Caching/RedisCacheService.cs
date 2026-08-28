@@ -6,6 +6,7 @@ namespace VendingManagement.BLL.Caching
     public class RedisCacheService : ICacheService
     {
         private readonly IDatabase _database;
+        private static readonly TimeSpan DefaultExpiry = TimeSpan.FromMinutes(10);
 
         public RedisCacheService(IConnectionMultiplexer redis)
         {
@@ -33,6 +34,25 @@ namespace VendingManagement.BLL.Caching
         public async Task RemoveAsync(string key)
         {
             await _database.KeyDeleteAsync(key);
+        }
+
+        public async Task<T?> GetAsync<T>(string key, Func<Task<T?>> fallback, TimeSpan? expiry = null) where T : class
+        {
+            var cached = await GetAsync<T>(key);
+
+            if (cached != null)
+            {
+                return cached;
+            }
+
+            var value = await fallback();
+
+            if (value != null)
+            {
+                await SetAsync(key, value, expiry ?? DefaultExpiry);
+            }
+
+            return value;
         }
     }
 }
