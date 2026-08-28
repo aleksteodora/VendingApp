@@ -10,6 +10,8 @@ using VendingManagement.DAL.UOW.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using StackExchange.Redis;
+using VendingManagement.BLL.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +64,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddHttpClient();
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
 
 // JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -85,6 +88,9 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
     };
 });
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect("localhost:6379"));
 
 var app = builder.Build();
 
