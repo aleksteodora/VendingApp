@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using StackExchange.Redis;
 using VendingManagement.BLL.Caching;
+using VendingManagement.BLL.Messaging;
+using VendingManagement.WebApp.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +58,11 @@ builder.Services.AddDbContext<VendingDbContext>(options =>
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
+
+builder.Services.AddSingleton<IMessagePublisher>(sp =>
+    new RabbitMqPublisher("localhost"));
+
+builder.Services.AddHostedService<TokenRequestWorker>();
 
 builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();
 builder.Services.AddScoped<ISecurityModuleClient, SecurityModuleClient>();
