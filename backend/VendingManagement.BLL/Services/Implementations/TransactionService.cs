@@ -4,7 +4,6 @@ using VendingManagement.Shared.Constants;
 using VendingManagement.DAL.Entities;
 using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.BLL.Services.Interfaces;
-using VendingManagement.BLL.Clients;
 using VendingManagement.BLL.Messaging;
 using Microsoft.Extensions.Logging;
 
@@ -14,22 +13,20 @@ namespace VendingManagement.BLL.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProcessingFeeService _processingFeeService;
-        private readonly ISecurityModuleClient _securityModuleClient;
         private readonly IMessagePublisher _messagePublisher;
         private readonly ILogger<TransactionService> _logger;
 
         private const string TokenRequestQueue = "security-token-requests";
+        private const string SecurityModuleRequestQueue = "security-module-requests";
 
         public TransactionService(
             IUnitOfWork unitOfWork,
             IProcessingFeeService processingFeeService,
-            ISecurityModuleClient securityModuleClient,
             IMessagePublisher messagePublisher,
             ILogger<TransactionService> logger)
         {
             _unitOfWork = unitOfWork;
             _processingFeeService = processingFeeService;
-            _securityModuleClient = securityModuleClient;
             _messagePublisher = messagePublisher;
             _logger = logger;
         }
@@ -117,29 +114,38 @@ namespace VendingManagement.BLL.Services.Implementations
                 return;
             }
 
-            var dataIn = new TokenRequestDataIn
-            {
-                MeterSerialNumber = message.MeterSerialNumber,
-                Amount = message.Amount
-            };
+            _messagePublisher.Publish(SecurityModuleRequestQueue, message);
 
-            try
-            {
-                var token = await _securityModuleClient.RequestTokenAsync(dataIn);
+            _logger.LogInformation("Transaction {TransactionId} forwarded to Security Module queue.", message.TransactionId);
+        }
 
-                transaction.Token = token;
+        public async Task HandleTokenResponseAsync(TokenResponseMessage response)
+        {
+            var transaction = await _unitOfWork.TransactionRepository.GetByIdAsync(response.TransactionId);
+
+            if (transaction == null)
+            {
+                _logger.LogWarning("HandleTokenResponseAsync: transaction {TransactionId} not found, skipping.", response.TransactionId);
+                return;
+            }
+
+            if (response.Success)
+            {
+                transaction.Token = response.Token;
                 transaction.Status = TransactionStatus.Completed;
+                _unitOfWork.TransactionRepository.Update(transaction);
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Transaction {TransactionId} completed successfully.", message.TransactionId);
+                _logger.LogInformation("Transaction {TransactionId} completed successfully via queue.", response.TransactionId);
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Transaction {TransactionId} failed while calling Security Module.", message.TransactionId);
 
                 transaction.Status = TransactionStatus.Failed;
                 _unitOfWork.TransactionRepository.Update(transaction);
                 await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogWarning("Transaction {TransactionId} failed: {ErrorMessage}", response.TransactionId, response.ErrorMessage);
             }
         }
     }

@@ -1,16 +1,19 @@
 using Microsoft.OpenApi.Models;
 using SecurityModule.BLL.Services.Implementations;
 using SecurityModule.BLL.Services.Interfaces;
+using SecurityModule.BLL.Messaging;
+using SecurityModule.WebApp.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.WebHost.UseUrls("http://localhost:5244", "https://localhost:7141");
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddScoped<ISecurityModuleService, SecurityModuleService>();
+builder.Services.AddSingleton<IMessagePublisher>(sp => new RabbitMqPublisher("localhost"));
+builder.Services.AddHostedService<SecurityModuleWorker>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -21,7 +24,6 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.ApiKey,
         Description = "API Key needed to access the endpoints"
     });
-
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -37,9 +39,10 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

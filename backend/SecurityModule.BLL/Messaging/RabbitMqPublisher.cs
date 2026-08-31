@@ -2,7 +2,7 @@
 using System.Text.Json;
 using RabbitMQ.Client;
 
-namespace VendingManagement.BLL.Messaging
+namespace SecurityModule.BLL.Messaging
 {
     public class RabbitMqPublisher : IMessagePublisher, IDisposable
     {

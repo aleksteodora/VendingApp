@@ -63,6 +63,7 @@ builder.Services.AddSingleton<IMessagePublisher>(sp =>
     new RabbitMqPublisher("localhost"));
 
 builder.Services.AddHostedService<TokenRequestWorker>();
+builder.Services.AddHostedService<SecurityResponseWorker>();
 
 builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();
 builder.Services.AddScoped<ISecurityModuleClient, SecurityModuleClient>();
