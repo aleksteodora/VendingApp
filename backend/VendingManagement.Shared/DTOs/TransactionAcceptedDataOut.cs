@@ -2,7 +2,7 @@
 {
     public class TransactionAcceptedDataOut
     {
-        public int TransactionId { get; set; }
+        public Guid TransactionId { get; set; }
         public string Status { get; set; }
         public string Message { get; set; }
     }

@@ -92,7 +92,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
             var responseData = new TransactionAcceptedDataOut
             {
-                TransactionId = transaction.Id,
+                TransactionId = transaction.PublicId,
                 Status = transaction.Status.ToString(),
                 Message = "Your transaction is being processed."
             };
@@ -133,9 +133,9 @@ namespace VendingManagement.BLL.Services.Implementations
             }
         }
 
-        public async Task<ResponsePackage<TransactionStatusDataOut>> GetTransactionStatusAsync(int transactionId)
+        public async Task<ResponsePackage<TransactionStatusDataOut>> GetTransactionStatusAsync(Guid publicId)
         {
-            var transaction = await _unitOfWork.TransactionRepository.GetByIdAsync(transactionId);
+            var transaction = await _unitOfWork.TransactionRepository.GetByPublicIdAsync(publicId);
 
             if (transaction == null)
             {
@@ -146,7 +146,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
             var statusData = new TransactionStatusDataOut
             {
-                Id = transaction.Id,
+                Id = transaction.PublicId,
                 Status = transaction.Status.ToString(),
                 Token = transaction.Token,
                 EnergyAmount = transaction.EnergyAmount,
