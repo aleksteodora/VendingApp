@@ -52,16 +52,25 @@ namespace VendingManagement.WebApp.Workers
             {
                 var body = ea.Body.ToArray();
                 var json = Encoding.UTF8.GetString(body);
-                var message = JsonSerializer.Deserialize<TokenResponseMessage>(json);
-
-                if (message != null)
+                try
                 {
-                    using var scope = _serviceProvider.CreateScope();
-                    var transactionService = scope.ServiceProvider.GetRequiredService<ITransactionService>();
-                    await transactionService.HandleTokenResponseAsync(message);
-                }
+                    var message = JsonSerializer.Deserialize<TokenResponseMessage>(json);
 
-                _channel!.BasicAck(ea.DeliveryTag, multiple: false);
+                    if (message != null)
+                    {
+                        using var scope = _serviceProvider.CreateScope();
+                        var transactionService = scope.ServiceProvider.GetRequiredService<ITransactionService>();
+                        await transactionService.HandleTokenResponseAsync(message);
+                    }
+
+                    _channel!.BasicAck(ea.DeliveryTag, multiple: false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to process message from queue '{QueueName}'.", QueueName);
+
+                    _channel!.BasicNack(ea.DeliveryTag, multiple: false, requeue: false);
+                }
             };
 
             _channel!.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
