@@ -132,5 +132,31 @@ namespace VendingManagement.BLL.Services.Implementations
                 _logger.LogWarning("Transaction {TransactionId} failed: {ErrorMessage}", response.TransactionId, response.ErrorMessage);
             }
         }
+
+        public async Task<ResponsePackage<TransactionStatusDataOut>> GetTransactionStatusAsync(int transactionId)
+        {
+            var transaction = await _unitOfWork.TransactionRepository.GetByIdAsync(transactionId);
+
+            if (transaction == null)
+            {
+                return new ResponsePackage<TransactionStatusDataOut>(
+                    ResponseStatus.NotFound,
+                    "Transaction not found.");
+            }
+
+            var statusData = new TransactionStatusDataOut
+            {
+                Id = transaction.Id,
+                Status = transaction.Status.ToString(),
+                Token = transaction.Token,
+                EnergyAmount = transaction.EnergyAmount,
+                ProcessingFeeAmount = transaction.ProcessingFeeAmount
+            };
+
+            return new ResponsePackage<TransactionStatusDataOut>(
+                statusData,
+                ResponseStatus.OK,
+                "Transaction status retrieved successfully.");
+        }
     }
 }

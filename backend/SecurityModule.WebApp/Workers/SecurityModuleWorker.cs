@@ -70,6 +70,8 @@ namespace SecurityModule.WebApp.Workers
 
         private void ProcessMessage(TokenRequestMessage message)
         {
+            Thread.Sleep(6000); //radi testiranja poola
+
             using var scope = _serviceProvider.CreateScope();
             var securityModuleService = scope.ServiceProvider.GetRequiredService<ISecurityModuleService>();
 

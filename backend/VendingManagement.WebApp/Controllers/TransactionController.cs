@@ -23,5 +23,12 @@ namespace VendingManagement.WebApp.Controllers
             var result = await _transactionService.ProcessTransactionAsync(dataIn);
             return StatusCode((int)result.Status, result);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetStatus(int id)
+        {
+            var result = await _transactionService.GetTransactionStatusAsync(id);
+            return StatusCode((int)result.Status, result);
+        }
     }
 }
