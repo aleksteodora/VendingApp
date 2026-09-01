@@ -65,7 +65,6 @@ var rabbitPort = int.Parse(builder.Configuration["RabbitMQ:Port"] ?? "5672");
 builder.Services.AddSingleton<IMessagePublisher>(sp =>
     new RabbitMqPublisher(rabbitHost!, rabbitPort));
 
-builder.Services.AddHostedService<TokenRequestWorker>();
 builder.Services.AddHostedService<SecurityResponseWorker>();
 
 builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();

@@ -16,7 +16,6 @@ namespace VendingManagement.BLL.Services.Implementations
         private readonly IMessagePublisher _messagePublisher;
         private readonly ILogger<TransactionService> _logger;
 
-        private const string TokenRequestQueue = "security-token-requests";
         private const string SecurityModuleRequestQueue = "security-module-requests";
 
         public TransactionService(
@@ -87,7 +86,7 @@ namespace VendingManagement.BLL.Services.Implementations
                 Amount = dataIn.Amount
             };
 
-            _messagePublisher.Publish(TokenRequestQueue, message);
+            _messagePublisher.Publish(SecurityModuleRequestQueue, message);
 
             _logger.LogInformation("Transaction {TransactionId} queued for token generation, meter {MeterSerialNumber}.", transaction.Id, dataIn.MeterSerialNumber);
 
@@ -102,21 +101,6 @@ namespace VendingManagement.BLL.Services.Implementations
                 responseData,
                 ResponseStatus.Accepted,
                 "Transaction accepted and queued for processing.");
-        }
-
-        public async Task CompleteTransactionAsync(TokenRequestMessage message)
-        {
-            var transaction = await _unitOfWork.TransactionRepository.GetByIdAsync(message.TransactionId);
-
-            if (transaction == null)
-            {
-                _logger.LogWarning("CompleteTransactionAsync: transaction {TransactionId} not found, skipping.", message.TransactionId);
-                return;
-            }
-
-            _messagePublisher.Publish(SecurityModuleRequestQueue, message);
-
-            _logger.LogInformation("Transaction {TransactionId} forwarded to Security Module queue.", message.TransactionId);
         }
 
         public async Task HandleTokenResponseAsync(TokenResponseMessage response)
