@@ -10,6 +10,14 @@ export interface AdminManagementModel {
   role?: 'Admin' | 'SuperAdmin';
 }
 
+export interface PagedResult<T> {
+  items: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
 interface ResponsePackage<T> {
   status: number;
   message: string;
@@ -24,9 +32,9 @@ export class AdminManagementService {
 
   constructor(private http: HttpClient) { }
 
-  getAll(): Observable<AdminManagementModel[]> {
+  getAll(pageNumber: number, pageSize: number): Observable<PagedResult<AdminManagementModel>> {
     return this.http
-      .get<ResponsePackage<AdminManagementModel[]>>(this.baseUrl)
+      .get<ResponsePackage<PagedResult<AdminManagementModel>>>(`${this.baseUrl}?pageNumber=${pageNumber}&pageSize=${pageSize}`)
       .pipe(map(response => response.data));
   }
 

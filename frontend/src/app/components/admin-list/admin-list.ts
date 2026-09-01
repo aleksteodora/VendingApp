@@ -17,6 +17,11 @@ export class AdminList implements OnInit {
   successMessage = '';
   showPassword = false;
 
+  pageNumber = 1;
+  pageSize = 10;
+  totalCount = 0;
+  totalPages = 0;
+
   adminForm: FormGroup;
 
   constructor(
@@ -36,9 +41,11 @@ export class AdminList implements OnInit {
   }
 
   loadAdmins(): void {
-    this.adminService.getAll().subscribe({
-      next: (data) => {
-        this.admins = data;
+    this.adminService.getAll(this.pageNumber, this.pageSize).subscribe({
+      next: (result) => {
+        this.admins = result.items;
+        this.totalCount = result.totalCount;
+        this.totalPages = result.totalPages;
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -47,6 +54,22 @@ export class AdminList implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) {
+      return;
+    }
+    this.pageNumber = page;
+    this.loadAdmins();
+  }
+
+  nextPage(): void {
+    this.goToPage(this.pageNumber + 1);
+  }
+
+  previousPage(): void {
+    this.goToPage(this.pageNumber - 1);
   }
 
   get fullName() { return this.adminForm.get('fullName'); }
@@ -84,6 +107,7 @@ export class AdminList implements OnInit {
         error: (err) => this.handleError(err)
       });
     } else {
+      this.pageNumber = 1;
       this.adminService.create(formValue).subscribe({
         next: () => {
           this.loadAdmins();
@@ -114,22 +138,22 @@ export class AdminList implements OnInit {
   }
 
   editAdmin(admin: AdminManagementModel): void {
-  this.isEditing = true;
-  this.editingId = admin.id ?? null;
+    this.isEditing = true;
+    this.editingId = admin.id ?? null;
 
-  this.adminForm.get('password')?.clearValidators();
-  this.adminForm.get('password')?.setValidators([Validators.minLength(6)]);
-  this.adminForm.get('password')?.updateValueAndValidity();
+    this.adminForm.get('password')?.clearValidators();
+    this.adminForm.get('password')?.setValidators([Validators.minLength(6)]);
+    this.adminForm.get('password')?.updateValueAndValidity();
 
-  this.adminForm.patchValue({
-    fullName: admin.fullName,
-    email: admin.email,
-    password: ''
-  });
-  this.errorMessage = '';
-  this.successMessage = '';
-  this.cdr.detectChanges();
-}
+    this.adminForm.patchValue({
+      fullName: admin.fullName,
+      email: admin.email,
+      password: ''
+    });
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.cdr.detectChanges();
+  }
 
   deleteAdmin(id: number): void {
     if (confirm('Are you sure you want to delete this admin?')) {
@@ -145,12 +169,12 @@ export class AdminList implements OnInit {
   }
 
   resetForm(): void {
-  this.adminForm.get('password')?.clearValidators();
-  this.adminForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
-  this.adminForm.get('password')?.updateValueAndValidity();
+    this.adminForm.get('password')?.clearValidators();
+    this.adminForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+    this.adminForm.get('password')?.updateValueAndValidity();
 
-  this.adminForm.reset();
-  this.isEditing = false;
-  this.editingId = null;
-}
+    this.adminForm.reset();
+    this.isEditing = false;
+    this.editingId = null;
+  }
 }
