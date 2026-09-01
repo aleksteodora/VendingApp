@@ -11,19 +11,24 @@ namespace VendingManagement.WebApp.Workers
     {
         private const string QueueName = "security-token-requests";
         private readonly IServiceProvider _serviceProvider;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<TokenRequestWorker> _logger;
         private IConnection? _connection;
         private IModel? _channel;
 
-        public TokenRequestWorker(IServiceProvider serviceProvider, ILogger<TokenRequestWorker> logger)
+        public TokenRequestWorker(IServiceProvider serviceProvider, IConfiguration configuration, ILogger<TokenRequestWorker> logger)
         {
             _serviceProvider = serviceProvider;
+            _configuration = configuration;
             _logger = logger;
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
-            var factory = new ConnectionFactory { HostName = "localhost" };
+            var host = _configuration["RabbitMQ:Host"];
+            var port = int.Parse(_configuration["RabbitMQ:Port"] ?? "5672");
+
+            var factory = new ConnectionFactory { HostName = host, Port = port };
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
 

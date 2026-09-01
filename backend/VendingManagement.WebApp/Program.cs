@@ -59,8 +59,11 @@ builder.Services.AddDbContext<VendingDbContext>(options =>
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
 
+var rabbitHost = builder.Configuration["RabbitMQ:Host"];
+var rabbitPort = int.Parse(builder.Configuration["RabbitMQ:Port"] ?? "5672");
+
 builder.Services.AddSingleton<IMessagePublisher>(sp =>
-    new RabbitMqPublisher("localhost"));
+    new RabbitMqPublisher(rabbitHost!, rabbitPort));
 
 builder.Services.AddHostedService<TokenRequestWorker>();
 builder.Services.AddHostedService<SecurityResponseWorker>();

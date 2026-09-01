@@ -9,9 +9,9 @@ namespace VendingManagement.BLL.Messaging
         private readonly IConnection _connection;
         private readonly IModel _channel;
 
-        public RabbitMqPublisher(string hostName)
+        public RabbitMqPublisher(string hostName, int port)
         {
-            var factory = new ConnectionFactory { HostName = hostName };
+            var factory = new ConnectionFactory { HostName = hostName, Port = port };
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
         }

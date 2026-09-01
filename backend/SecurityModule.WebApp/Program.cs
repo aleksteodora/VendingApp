@@ -11,7 +11,12 @@ builder.WebHost.UseUrls("http://localhost:5244", "https://localhost:7141");
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<ISecurityModuleService, SecurityModuleService>();
-builder.Services.AddSingleton<IMessagePublisher>(sp => new RabbitMqPublisher("localhost"));
+
+var rabbitHost = builder.Configuration["RabbitMQ:Host"];
+var rabbitPort = int.Parse(builder.Configuration["RabbitMQ:Port"] ?? "5672");
+
+builder.Services.AddSingleton<IMessagePublisher>(sp => new RabbitMqPublisher(rabbitHost!, rabbitPort));
+
 builder.Services.AddHostedService<SecurityModuleWorker>();
 
 builder.Services.AddEndpointsApiExplorer();

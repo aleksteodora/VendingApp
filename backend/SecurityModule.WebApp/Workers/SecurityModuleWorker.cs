@@ -15,23 +15,25 @@ namespace SecurityModule.WebApp.Workers
 
         private readonly IServiceProvider _serviceProvider;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<SecurityModuleWorker> _logger;
         private IConnection? _connection;
         private IModel? _channel;
 
-        public SecurityModuleWorker(
-            IServiceProvider serviceProvider,
-            IMessagePublisher messagePublisher,
-            ILogger<SecurityModuleWorker> logger)
+        public SecurityModuleWorker(IServiceProvider serviceProvider, IMessagePublisher messagePublisher, IConfiguration configuration, ILogger<SecurityModuleWorker> logger)
         {
             _serviceProvider = serviceProvider;
             _messagePublisher = messagePublisher;
+            _configuration = configuration;
             _logger = logger;
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
-            var factory = new ConnectionFactory { HostName = "localhost" };
+            var host = _configuration["RabbitMQ:Host"];
+            var port = int.Parse(_configuration["RabbitMQ:Port"] ?? "5672");
+
+            var factory = new ConnectionFactory { HostName = host, Port = port };
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
 
