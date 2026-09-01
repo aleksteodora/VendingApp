@@ -6,6 +6,7 @@ using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.BLL.Messaging;
 using Microsoft.Extensions.Logging;
+using VendingManagement.BLL.Notifications;
 
 namespace VendingManagement.BLL.Services.Implementations
 {
@@ -14,6 +15,7 @@ namespace VendingManagement.BLL.Services.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProcessingFeeService _processingFeeService;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly IWebhookNotifier _webhookNotifier;
         private readonly ILogger<TransactionService> _logger;
 
         private const string SecurityModuleRequestQueue = "security-module-requests";
@@ -22,11 +24,13 @@ namespace VendingManagement.BLL.Services.Implementations
             IUnitOfWork unitOfWork,
             IProcessingFeeService processingFeeService,
             IMessagePublisher messagePublisher,
+            IWebhookNotifier webhookNotifier,
             ILogger<TransactionService> logger)
         {
             _unitOfWork = unitOfWork;
             _processingFeeService = processingFeeService;
             _messagePublisher = messagePublisher;
+            _webhookNotifier = webhookNotifier;
             _logger = logger;
         }
 
@@ -121,6 +125,8 @@ namespace VendingManagement.BLL.Services.Implementations
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Transaction {TransactionId} completed successfully via queue.", response.TransactionId);
+
+                await _webhookNotifier.NotifyTransactionCompletedAsync(transaction.PublicId, transaction.Status.ToString(), transaction.Token);
             }
             else
             {
@@ -130,6 +136,8 @@ namespace VendingManagement.BLL.Services.Implementations
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogWarning("Transaction {TransactionId} failed: {ErrorMessage}", response.TransactionId, response.ErrorMessage);
+
+                await _webhookNotifier.NotifyTransactionCompletedAsync(transaction.PublicId, transaction.Status.ToString(), null);
             }
         }
 

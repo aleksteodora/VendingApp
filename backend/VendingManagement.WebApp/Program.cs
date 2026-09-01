@@ -14,6 +14,7 @@ using StackExchange.Redis;
 using VendingManagement.BLL.Caching;
 using VendingManagement.BLL.Messaging;
 using VendingManagement.WebApp.Workers;
+using VendingManagement.BLL.Notifications;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
+builder.Services.AddScoped<IWebhookNotifier, WebhookNotifier>();
 
 // JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
