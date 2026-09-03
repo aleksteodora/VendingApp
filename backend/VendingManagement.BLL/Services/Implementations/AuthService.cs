@@ -68,7 +68,6 @@ namespace VendingManagement.BLL.Services.Implementations
         private string GenerateJwtToken(int adminId, string email, AdminRole role)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
-            //var secret = _configuration["Jwt:Secret"];
 
             var claims = new List<Claim>
             {

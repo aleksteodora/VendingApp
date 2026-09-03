@@ -2,9 +2,8 @@
 using VendingManagement.DAL.Context;
 using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.BLL.Services.Implementations;
-using VendingManagement.BLL.Clients;
 using Serilog;
-
+using System.IO;
 using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.DAL.UOW.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -69,7 +68,6 @@ builder.Services.AddSingleton<IMessagePublisher>(sp =>
 builder.Services.AddHostedService<SecurityResponseWorker>();
 
 builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();
-builder.Services.AddScoped<ISecurityModuleClient, SecurityModuleClient>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
@@ -83,7 +81,6 @@ builder.Services.AddScoped<IWebhookNotifier, WebhookNotifier>();
 
 // JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var jwtSecret = builder.Configuration["Jwt:Secret"];
 
 builder.Services.AddAuthentication(options =>
 {
@@ -100,7 +97,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]))
     };
 });
 
@@ -110,6 +107,17 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<VendingDbContext>();
     dbContext.Database.Migrate();
+
+    if (!dbContext.Customers.Any())
+    {
+        var seedFilePath = Path.Combine(AppContext.BaseDirectory, "SeedData", "seed-data.sql");
+
+        if (File.Exists(seedFilePath))
+        {
+            var seedSql = File.ReadAllText(seedFilePath);
+            dbContext.Database.ExecuteSqlRaw(seedSql);
+        }
+    }
 }
 
 app.UseCors("AllowAngularApp");
