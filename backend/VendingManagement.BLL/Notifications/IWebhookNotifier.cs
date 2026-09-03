@@ -2,6 +2,6 @@
 {
     public interface IWebhookNotifier
     {
-        Task NotifyTransactionCompletedAsync(Guid transactionPublicId, string status, string? token);
+        Task NotifyTransactionCompletedAsync(string? webhookUrl, Guid transactionPublicId, string status, string? token);
     }
 }

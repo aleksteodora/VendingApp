@@ -21,14 +21,12 @@ namespace VendingManagement.BLL.Notifications
             _logger = logger;
         }
 
-        public async Task NotifyTransactionCompletedAsync(Guid transactionPublicId, string status, string? token)
+        public async Task NotifyTransactionCompletedAsync(string? webhookUrl, Guid transactionPublicId, string status, string? token)
         {
-            var webhookUrl = _configuration["Webhook:TransactionCompletedUrl"];
-
             if (string.IsNullOrEmpty(webhookUrl))
             {
-                _logger.LogWarning("Webhook URL is not configured, skipping notification for transaction {TransactionId}.", transactionPublicId);
-                return;
+               _logger.LogInformation("No webhook URL configured for transaction {TransactionId}, skipping notification.", transactionPublicId);
+               return;
             }
 
             var payload = new

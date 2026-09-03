@@ -68,7 +68,5 @@ namespace VendingManagement.WebApp.Controllers
             var result = await _customerService.DeleteAsync(id);
             return StatusCode((int)result.Status, result);
         }
-
-        //noviandpoint webhook
     }
 }

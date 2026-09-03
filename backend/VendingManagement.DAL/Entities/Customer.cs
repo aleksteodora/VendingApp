@@ -31,5 +31,7 @@ namespace VendingManagement.DAL.Entities
         public bool IsDeleted { get; set; } = false;
 
         public Meter Meter { get; set; }
+
+        public string? WebhookUrl { get; set; }
     }
 }

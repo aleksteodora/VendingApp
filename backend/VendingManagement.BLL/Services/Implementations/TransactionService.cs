@@ -117,27 +117,33 @@ namespace VendingManagement.BLL.Services.Implementations
                 return;
             }
 
+            var meter = await _unitOfWork.MeterRepository.GetByIdAsync(transaction.MeterId);
+            string? webhookUrl = null;
+
+            if (meter != null)
+            {
+                var customer = await _unitOfWork.CustomerRepository.GetByIdAsync(meter.UserId);
+                webhookUrl = customer?.WebhookUrl;
+            }
+
             if (response.Success)
             {
                 transaction.Token = response.Token;
                 transaction.Status = TransactionStatus.Completed;
-                _unitOfWork.TransactionRepository.Update(transaction);
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Transaction {TransactionId} completed successfully via queue.", response.TransactionId);
 
-                await _webhookNotifier.NotifyTransactionCompletedAsync(transaction.PublicId, transaction.Status.ToString(), transaction.Token);
+                await _webhookNotifier.NotifyTransactionCompletedAsync(webhookUrl, transaction.PublicId, transaction.Status.ToString(), transaction.Token);
             }
             else
             {
-
                 transaction.Status = TransactionStatus.Failed;
-                _unitOfWork.TransactionRepository.Update(transaction);
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogWarning("Transaction {TransactionId} failed: {ErrorMessage}", response.TransactionId, response.ErrorMessage);
 
-                await _webhookNotifier.NotifyTransactionCompletedAsync(transaction.PublicId, transaction.Status.ToString(), null);
+                await _webhookNotifier.NotifyTransactionCompletedAsync(webhookUrl, transaction.PublicId, transaction.Status.ToString(), null);
             }
         }
 

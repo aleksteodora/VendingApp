@@ -48,5 +48,11 @@ namespace VendingManagement.DAL.Repositories.Implementations
         {
             return await _context.Customers.AnyAsync(u => u.ApiKey == apiKey);
         }
+
+        public async Task<Customer?> GetByApiKeyAsync(string apiKey)
+        {
+            return await _context.Customers
+                .FirstOrDefaultAsync(c => c.ApiKey == apiKey);
+        }
     }
 }

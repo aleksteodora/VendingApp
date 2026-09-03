@@ -51,7 +51,6 @@ services:
       - Jwt__Secret=MojaSifraVending1MojaSifraVending1
       - SecurityModule__BaseUrl=http://securitymodule:8080
       - SecurityModule__ApiKey=sm-secret-key-2024
-      - Webhook__TransactionCompletedUrl=https://webhook.site/5f33f615-a90d-4204-ad75-0cbd7a26e414
     depends_on:
       postgres:
         condition: service_started
