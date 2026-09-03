@@ -5,7 +5,7 @@ using SecurityModule.BLL.Messaging;
 using SecurityModule.WebApp.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://localhost:5244", "https://localhost:7141");
+//builder.WebHost.UseUrls("http://localhost:5244", "https://localhost:7141");
 
 // Add services to the container.
 builder.Services.AddControllers();

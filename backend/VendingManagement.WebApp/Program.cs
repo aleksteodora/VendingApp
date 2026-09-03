@@ -40,7 +40,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.WebHost.UseUrls("http://localhost:5245", "https://localhost:7142");
+//builder.WebHost.UseUrls("http://localhost:5245", "https://localhost:7142");
 
 // Add services to the container.
 
@@ -105,6 +105,12 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<VendingDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.UseCors("AllowAngularApp");
 

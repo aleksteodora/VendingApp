@@ -28,7 +28,7 @@ interface ResponsePackage<T> {
   providedIn: 'root'
 })
 export class AdminManagementService {
-  private baseUrl = 'https://localhost:7142/api/admin';
+  private baseUrl = 'http://localhost:5245/api/admin';
 
   constructor(private http: HttpClient) { }
 
