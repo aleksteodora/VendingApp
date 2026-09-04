@@ -171,5 +171,24 @@ namespace VendingManagement.BLL.Services.Implementations
                 MeterSerialNumber = user.Meter?.MeterSerialNumber
             };
         }
+
+        public async Task<ResponsePackageNoData> UpdateWebhookUrlByApiKeyAsync(string apiKey, WebhookUrlDataIn dataIn)
+        {
+            var customer = await _unitOfWork.CustomerRepository.GetByApiKeyAsync(apiKey);
+
+            if (customer == null || customer.IsDeleted)
+            {
+                return new ResponsePackageNoData(
+                    ResponseStatus.NotFound,
+                    "Customer not found.");
+            }
+
+            customer.WebhookUrl = dataIn.WebhookUrl;
+            await _unitOfWork.SaveChangesAsync();
+
+            return new ResponsePackageNoData(
+                ResponseStatus.OK,
+                "Webhook URL updated successfully.");
+        }
     }
 }

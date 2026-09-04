@@ -25,7 +25,7 @@ interface ResponsePackage<T> {
   providedIn: 'root'
 })
 export class ProcessingFeeService {
-  private baseUrl = 'https://localhost:7142/api/processing-fee';
+  private baseUrl = 'http://localhost:5245/api/processing-fee';
 
   constructor(private http: HttpClient) { }
 

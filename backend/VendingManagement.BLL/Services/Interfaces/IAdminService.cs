@@ -5,7 +5,7 @@ namespace VendingManagement.BLL.Services.Interfaces
 {
     public interface IAdminService
     {
-        Task<ResponsePackage<List<AdminDataOut>>> GetAllAsync();
+        Task<ResponsePackage<PagedResult<AdminDataOut>>> GetAllAsync(int pageNumber, int pageSize);
         Task<ResponsePackage<AdminDataOut>> GetByIdAsync(int id);
         Task<ResponsePackage<AdminDataOut>> CreateAsync(AdminDataIn dataIn);
         Task<ResponsePackage<AdminDataOut>> UpdateAsync(int id, AdminDataIn dataIn);

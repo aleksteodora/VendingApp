@@ -1,0 +1,91 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: vending-postgres
+    environment:
+      POSTGRES_DB: VendingManagementDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: vending-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: vending-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  vendingmanagement:
+    build:
+      context: ./backend
+      dockerfile: VendingManagement.WebApp/Dockerfile
+    container_name: vending-app
+    restart: on-failure
+    ports:
+      - "5245:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__VendingConnection=Host=postgres;Port=5432;Database=VendingManagementDb;Username=postgres;Password=postgres
+      - ConnectionStrings__RedisConnection=redis:6379
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - Jwt__Secret=MojaSifraVending1MojaSifraVending1
+      - SecurityModule__BaseUrl=http://securitymodule:8080
+      - SecurityModule__ApiKey=sm-secret-key-2024
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  securitymodule:
+    build:
+      context: ./backend
+      dockerfile: SecurityModule.WebApp/Dockerfile
+    container_name: security-module
+    restart: on-failure
+    ports:
+      - "5244:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - SecurityModuleApiKey=sm-secret-key-2024
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vending-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - vendingmanagement
+
+volumes:
+  postgres-data:
+  redis-data:
+  rabbitmq-data:

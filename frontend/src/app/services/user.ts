@@ -28,7 +28,7 @@ interface ResponsePackage<T> {
   providedIn: 'root'
 })
 export class UserService {
-  private baseUrl = 'https://localhost:7142/api/user';
+  private baseUrl = 'http://localhost:5245/api/user';
 
   constructor(private http: HttpClient) { }
 

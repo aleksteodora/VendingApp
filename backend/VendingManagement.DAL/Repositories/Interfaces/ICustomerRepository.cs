@@ -8,5 +8,7 @@ namespace VendingManagement.DAL.Repositories.Interfaces
         Task<(List<CustomerListItem> Users, int TotalCount)> GetPagedWithMeterAsync(int pageNumber, int pageSize);
         Task<Customer?> GetByIdWithMeterAsync(int id);
         Task<bool> ExistsByApiKeyAsync(string apiKey);
+
+        Task<Customer?> GetByApiKeyAsync(string apiKey);
     }
 }

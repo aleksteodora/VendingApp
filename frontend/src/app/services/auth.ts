@@ -24,7 +24,7 @@ interface ResponsePackage<T> {
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'https://localhost:7142/api/auth';
+  private baseUrl = 'http://localhost:5245/api/auth';
 
   constructor(private http: HttpClient) { }
 
@@ -64,7 +64,7 @@ export class AuthService {
 
   changePassword(currentPassword: string, newPassword: string): Observable<void> {
   return this.http
-    .post<ResponsePackage<void>>('https://localhost:7142/api/admin/change-password', {
+    .post<ResponsePackage<void>>('http://localhost:5245/api/admin/change-password', {
       currentPassword,
       newPassword
     })

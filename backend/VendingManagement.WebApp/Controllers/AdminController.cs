@@ -19,9 +19,9 @@ namespace VendingManagement.WebApp.Controllers
 
         [HttpGet]
         [Authorize(Roles = "SuperAdmin")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
-            var result = await _adminService.GetAllAsync();
+            var result = await _adminService.GetAllAsync(pageNumber, pageSize);
             return StatusCode((int)result.Status, result);
         }
 

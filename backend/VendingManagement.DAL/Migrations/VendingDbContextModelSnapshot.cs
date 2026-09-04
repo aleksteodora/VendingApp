@@ -92,6 +92,9 @@ namespace VendingManagement.DAL.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<string>("WebhookUrl")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApiKey")
@@ -181,6 +184,9 @@ namespace VendingManagement.DAL.Migrations
 
                     b.Property<decimal>("ProcessingFeeAmount")
                         .HasColumnType("decimal(18,5)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

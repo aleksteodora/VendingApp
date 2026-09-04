@@ -5,5 +5,6 @@ namespace VendingManagement.DAL.Repositories.Interfaces
     public interface IAdminRepository : IRepository<Admin>
     {
         Task<Admin?> GetByEmailAsync(string email);
+        Task<(List<AdminListItem> Admins, int TotalCount)> GetPagedAsync(int pageNumber, int pageSize);
     }
 }

@@ -4,8 +4,9 @@ using VendingManagement.Shared.Constants;
 using VendingManagement.DAL.Entities;
 using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.BLL.Services.Interfaces;
-using VendingManagement.BLL.Clients;
+using VendingManagement.BLL.Messaging;
 using Microsoft.Extensions.Logging;
+using VendingManagement.BLL.Notifications;
 
 namespace VendingManagement.BLL.Services.Implementations
 {
@@ -13,29 +14,34 @@ namespace VendingManagement.BLL.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProcessingFeeService _processingFeeService;
-        private readonly ISecurityModuleClient _securityModuleClient;
+        private readonly IMessagePublisher _messagePublisher;
+        private readonly IWebhookNotifier _webhookNotifier;
         private readonly ILogger<TransactionService> _logger;
+
+        private const string SecurityModuleRequestQueue = "security-module-requests";
 
         public TransactionService(
             IUnitOfWork unitOfWork,
             IProcessingFeeService processingFeeService,
-            ISecurityModuleClient securityModuleClient,
+            IMessagePublisher messagePublisher,
+            IWebhookNotifier webhookNotifier,
             ILogger<TransactionService> logger)
         {
             _unitOfWork = unitOfWork;
             _processingFeeService = processingFeeService;
-            _securityModuleClient = securityModuleClient;
+            _messagePublisher = messagePublisher;
+            _webhookNotifier = webhookNotifier;
             _logger = logger;
         }
 
-        public async Task<ResponsePackage<TokenResponseDataOut>> ProcessTransactionAsync(TokenRequestDataIn dataIn)
+        public async Task<ResponsePackage<TransactionAcceptedDataOut>> ProcessTransactionAsync(TokenRequestDataIn dataIn)
         {
             var meter = await _unitOfWork.MeterRepository.GetBySerialNumberAsync(dataIn.MeterSerialNumber);
 
             if (meter == null)
             {
                 _logger.LogWarning("Transaction failed: meter with serial number {MeterSerialNumber} was not found.", dataIn.MeterSerialNumber);
-                return new ResponsePackage<TokenResponseDataOut>(
+                return new ResponsePackage<TransactionAcceptedDataOut>(
                     ResponseStatus.NotFound,
                     "Meter with given serial number was not found.");
             }
@@ -45,7 +51,7 @@ namespace VendingManagement.BLL.Services.Implementations
             if (user == null)
             {
                 _logger.LogWarning("Transaction failed: user for meter {MeterSerialNumber} was not found.", dataIn.MeterSerialNumber);
-                return new ResponsePackage<TokenResponseDataOut>(
+                return new ResponsePackage<TransactionAcceptedDataOut>(
                     ResponseStatus.NotFound,
                     "User for given meter was not found.");
             }
@@ -54,7 +60,7 @@ namespace VendingManagement.BLL.Services.Implementations
 
             if (feeResult.Status != ResponseStatus.OK)
             {
-                return new ResponsePackage<TokenResponseDataOut>(
+                return new ResponsePackage<TransactionAcceptedDataOut>(
                     feeResult.Status,
                     feeResult.Message);
             }
@@ -77,43 +83,94 @@ namespace VendingManagement.BLL.Services.Implementations
             await _unitOfWork.TransactionRepository.AddAsync(transaction);
             await _unitOfWork.SaveChangesAsync();
 
-            string token;
-            try
+            var message = new TokenRequestMessage
             {
-                token = await _securityModuleClient.RequestTokenAsync(dataIn);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Transaction {TransactionId} failed while calling Security Module for meter {MeterSerialNumber}.", transaction.Id, dataIn.MeterSerialNumber);
+                TransactionId = transaction.Id,
+                MeterSerialNumber = dataIn.MeterSerialNumber,
+                Amount = dataIn.Amount
+            };
 
+            _messagePublisher.Publish(SecurityModuleRequestQueue, message);
+
+            _logger.LogInformation("Transaction {TransactionId} queued for token generation, meter {MeterSerialNumber}.", transaction.Id, dataIn.MeterSerialNumber);
+
+            var responseData = new TransactionAcceptedDataOut
+            {
+                TransactionId = transaction.PublicId,
+                Status = transaction.Status.ToString(),
+                Message = "Your transaction is being processed."
+            };
+
+            return new ResponsePackage<TransactionAcceptedDataOut>(
+                responseData,
+                ResponseStatus.Accepted,
+                "Transaction accepted and queued for processing.");
+        }
+
+        public async Task HandleTokenResponseAsync(TokenResponseMessage response)
+        {
+            var transaction = await _unitOfWork.TransactionRepository.GetByIdAsync(response.TransactionId);
+
+            if (transaction == null)
+            {
+                _logger.LogWarning("HandleTokenResponseAsync: transaction {TransactionId} not found, skipping.", response.TransactionId);
+                return;
+            }
+
+            var meter = await _unitOfWork.MeterRepository.GetByIdAsync(transaction.MeterId);
+            string? webhookUrl = null;
+
+            if (meter != null)
+            {
+                var customer = await _unitOfWork.CustomerRepository.GetByIdAsync(meter.UserId);
+                webhookUrl = customer?.WebhookUrl;
+            }
+
+            if (response.Success)
+            {
+                transaction.Token = response.Token;
+                transaction.Status = TransactionStatus.Completed;
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Transaction {TransactionId} completed successfully via queue.", response.TransactionId);
+
+                await _webhookNotifier.NotifyTransactionCompletedAsync(webhookUrl, transaction.PublicId, transaction.Status.ToString(), transaction.Token);
+            }
+            else
+            {
                 transaction.Status = TransactionStatus.Failed;
                 await _unitOfWork.SaveChangesAsync();
 
-                return new ResponsePackage<TokenResponseDataOut>(
-                    ResponseStatus.InternalServerError,
-                    $"Failed to generate token: {ex.Message}");
+                _logger.LogWarning("Transaction {TransactionId} failed: {ErrorMessage}", response.TransactionId, response.ErrorMessage);
+
+                await _webhookNotifier.NotifyTransactionCompletedAsync(webhookUrl, transaction.PublicId, transaction.Status.ToString(), null);
+            }
+        }
+
+        public async Task<ResponsePackage<TransactionStatusDataOut>> GetTransactionStatusAsync(Guid publicId)
+        {
+            var transaction = await _unitOfWork.TransactionRepository.GetByPublicIdAsync(publicId);
+
+            if (transaction == null)
+            {
+                return new ResponsePackage<TransactionStatusDataOut>(
+                    ResponseStatus.NotFound,
+                    "Transaction not found.");
             }
 
-            transaction.Token = token;
-            transaction.Status = TransactionStatus.Completed;
-            await _unitOfWork.SaveChangesAsync();
-
-            _logger.LogInformation("Transaction {TransactionId} completed successfully for meter {MeterSerialNumber}, amount {Amount}.", transaction.Id, dataIn.MeterSerialNumber, dataIn.Amount);
-
-            var responseData = new TokenResponseDataOut
+            var statusData = new TransactionStatusDataOut
             {
-                FullName = user.FullName,
-                Address = user.Address,
-                PhoneNumber = user.PhoneNumber,
-                Token = token,
-                EnergyAmount = energyAmount,
-                ProcessingFeeAmount = processingFeeAmount
+                Id = transaction.PublicId,
+                Status = transaction.Status.ToString(),
+                Token = transaction.Token,
+                EnergyAmount = transaction.EnergyAmount,
+                ProcessingFeeAmount = transaction.ProcessingFeeAmount
             };
 
-            return new ResponsePackage<TokenResponseDataOut>(
-                responseData,
+            return new ResponsePackage<TransactionStatusDataOut>(
+                statusData,
                 ResponseStatus.OK,
-                "Transaction processed successfully.");
+                "Transaction status retrieved successfully.");
         }
     }
 }

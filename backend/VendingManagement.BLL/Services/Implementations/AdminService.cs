@@ -4,6 +4,7 @@ using VendingManagement.Shared.DTOs;
 using VendingManagement.Shared.Common;
 using VendingManagement.Shared.Constants;
 using VendingManagement.BLL.Services.Interfaces;
+using VendingManagement.DAL.Repositories;
 
 namespace VendingManagement.BLL.Services.Implementations
 {
@@ -18,13 +19,34 @@ namespace VendingManagement.BLL.Services.Implementations
             _passwordService = passwordService;
         }
 
-        public async Task<ResponsePackage<List<AdminDataOut>>> GetAllAsync()
+        public async Task<ResponsePackage<PagedResult<AdminDataOut>>> GetAllAsync(int pageNumber, int pageSize)
         {
-            var admins = await _unitOfWork.AdminRepository.GetAllAsync();
-            var items = admins.Where(a => a.Role != AdminRole.SuperAdmin && !a.IsDeleted).Select(MapToDataOut).ToList();
+            if (pageNumber < 1)
+                pageNumber = 1;
+            if (pageSize < 1 || pageSize > 100)
+                pageSize = 20;
 
-            return new ResponsePackage<List<AdminDataOut>>(
-                items,
+            var (admins, totalCount) = await _unitOfWork.AdminRepository.GetPagedAsync(pageNumber, pageSize);
+
+            var items = admins
+                .Select(a => new AdminDataOut
+                {
+                    Id = a.Id,
+                    Email = a.Email,
+                    FullName = a.FullName
+                })
+                .ToList();
+
+            var pagedResult = new PagedResult<AdminDataOut>
+            {
+                Items = items,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+
+            return new ResponsePackage<PagedResult<AdminDataOut>>(
+                pagedResult,
                 ResponseStatus.OK,
                 "Admins retrieved successfully.");
         }

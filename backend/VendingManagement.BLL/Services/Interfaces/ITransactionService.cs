@@ -5,6 +5,8 @@ namespace VendingManagement.BLL.Services.Interfaces
 {
     public interface ITransactionService
     {
-        Task<ResponsePackage<TokenResponseDataOut>> ProcessTransactionAsync(TokenRequestDataIn dataIn);
+        Task<ResponsePackage<TransactionAcceptedDataOut>> ProcessTransactionAsync(TokenRequestDataIn dataIn);
+        Task HandleTokenResponseAsync(TokenResponseMessage response);
+        Task<ResponsePackage<TransactionStatusDataOut>> GetTransactionStatusAsync(Guid publicId);
     }
 }

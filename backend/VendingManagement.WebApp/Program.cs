@@ -2,9 +2,8 @@
 using VendingManagement.DAL.Context;
 using VendingManagement.BLL.Services.Interfaces;
 using VendingManagement.BLL.Services.Implementations;
-using VendingManagement.BLL.Clients;
 using Serilog;
-
+using System.IO;
 using VendingManagement.DAL.UOW.Interfaces;
 using VendingManagement.DAL.UOW.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,6 +11,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using StackExchange.Redis;
 using VendingManagement.BLL.Caching;
+using VendingManagement.BLL.Messaging;
+using VendingManagement.WebApp.Workers;
+using VendingManagement.BLL.Notifications;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +39,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.WebHost.UseUrls("http://localhost:5245", "https://localhost:7142");
+//builder.WebHost.UseUrls("http://localhost:5245", "https://localhost:7142");
 
 // Add services to the container.
 
@@ -57,8 +59,15 @@ builder.Services.AddDbContext<VendingDbContext>(options =>
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
 
+var rabbitHost = builder.Configuration["RabbitMQ:Host"];
+var rabbitPort = int.Parse(builder.Configuration["RabbitMQ:Port"] ?? "5672");
+
+builder.Services.AddSingleton<IMessagePublisher>(sp =>
+    new RabbitMqPublisher(rabbitHost!, rabbitPort));
+
+builder.Services.AddHostedService<SecurityResponseWorker>();
+
 builder.Services.AddScoped<IProcessingFeeService, ProcessingFeeService>();
-builder.Services.AddScoped<ISecurityModuleClient, SecurityModuleClient>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
@@ -68,10 +77,10 @@ builder.Services.AddHttpClient();
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
+builder.Services.AddScoped<IWebhookNotifier, WebhookNotifier>();
 
 // JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var jwtSecret = builder.Configuration["Jwt:Secret"];
 
 builder.Services.AddAuthentication(options =>
 {
@@ -88,11 +97,28 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]))
     };
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<VendingDbContext>();
+    dbContext.Database.Migrate();
+
+    if (!dbContext.Customers.Any())
+    {
+        var seedFilePath = Path.Combine(AppContext.BaseDirectory, "SeedData", "seed-data.sql");
+
+        if (File.Exists(seedFilePath))
+        {
+            var seedSql = File.ReadAllText(seedFilePath);
+            dbContext.Database.ExecuteSqlRaw(seedSql);
+        }
+    }
+}
 
 app.UseCors("AllowAngularApp");
 

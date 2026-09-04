@@ -15,6 +15,8 @@ namespace VendingManagement.DAL.Entities
         [Key]
         public int Id { get; set; }
 
+        public Guid PublicId { get; set; } = Guid.NewGuid();
+
         [Required]
         public int MeterId { get; set; }
 

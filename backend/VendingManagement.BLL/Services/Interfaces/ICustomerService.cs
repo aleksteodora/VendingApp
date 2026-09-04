@@ -10,5 +10,6 @@ namespace VendingManagement.BLL.Services.Interfaces
         Task<ResponsePackage<UserDataOut>> CreateAsync(UserDataIn dataIn);
         Task<ResponsePackage<UserDataOut>> UpdateAsync(int id, UserDataIn dataIn);
         Task<ResponsePackageNoData> DeleteAsync(int id);
+        Task<ResponsePackageNoData> UpdateWebhookUrlByApiKeyAsync(string apiKey, WebhookUrlDataIn dataIn);
     }
 }
