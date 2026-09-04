@@ -92,23 +92,20 @@ header identifying the customer:
 
 ## Screenshots
 
-### Login
-![Login](docs/screenshots/login.png)
-
-### Users management
-![Users tab](docs/screenshots/users-tab.png)
-
-### Admins management
-![Users tab](docs/screenshots/admins-tab.png)
-
-### Processing fee history
-![Processing fee](docs/screenshots/processing-fee.png)
-
-### Change password
-![Swagger](docs/screenshots/change-password.png)
-
-### Webhook notification received
-![Webhook notification](docs/screenshots/webhook-notification.png)
+<table>
+  <tr>
+    <td align="center"><b>Login</b><br><img src="docs/screenshots/login.png" width="400"></td>
+    <td align="center"><b>Users management</b><br><img src="docs/screenshots/users-tab.png" width="400"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Admins management</b><br><img src="docs/screenshots/admins-tab.png" width="400"></td>
+    <td align="center"><b>Processing fee history</b><br><img src="docs/screenshots/processing-fee.png" width="400"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Change password</b><br><img src="docs/screenshots/change-password.png" width="400"></td>
+    <td align="center"><b>Webhook notification received</b><br><img src="docs/screenshots/webhook-notification.png" width="400"></td>
+  </tr>
+</table>
 
 ## Running the application
 
