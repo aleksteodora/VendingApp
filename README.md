@@ -53,6 +53,13 @@ prepaid energy token is generated and delivered back to the customer.
   come back on another, so neither service blocks waiting on the other.
 - **Angular frontend** — the admin panel (login, customer management,
   processing fee management, admin management for super admins).
+
+## Additional diagrams
+
+More detailed diagrams showing the exact sequence of calls through each
+layer for the token purchase flow, the static dependency structure between
+controllers/services/repositories, and the database entity-relationship
+model are available in `docs/diagrams`
   
 ## Logging
 
